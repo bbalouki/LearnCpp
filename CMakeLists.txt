@@ -26,7 +26,7 @@ include(cmake/Tidy.cmake)
 include(cmake/Format.cmake)
 include(cmake/Sanitize.cmake)
 include(cmake/Coverage.cmake)
-include(cmake/Docs.cmake)
+# include(cmake/Docs.cmake)
 
 add_subdirectory(src/datamodel)
 add_subdirectory(src/greeter)
