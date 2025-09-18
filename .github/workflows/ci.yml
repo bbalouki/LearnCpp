@@ -19,7 +19,7 @@ jobs:
       uses: lukka/run-vcpkg@v11
     
     - name: Configure CMake
-      run: cmake --preset gcc
+      run: cmake --preset default
 
     - name: Build project
       run: cmake --build build

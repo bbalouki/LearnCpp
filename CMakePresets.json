@@ -91,6 +91,15 @@
     },
 
     {
+      "name": "default",
+      "inherits": ["_vcpkg"],
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+
+    {
       "name": "gcc-conan",
       "inherits": ["_gcc", "_vcpkg", "_debug"],
       "displayName": "(GCC/Clang) Debug + Conan",
