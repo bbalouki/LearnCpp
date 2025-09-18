@@ -1,0 +1,83 @@
+{
+  "tasks": [
+    {
+      "label": "GCC/Clang Debug Preset",
+      "type": "shell",
+      "command": "cmake",
+      "args": ["--preset", "gcc", "-DCMAKE_BUILD_TYPE", "Debug"],
+      "group": "build",
+      "problemMatcher": ["$gcc"],
+    },
+
+    {
+      "label": "GCC/Clang Release Preset",
+      "type": "shell",
+      "command": "cmake",
+      "args": ["--preset", "gcc", "-DCMAKE_BUILD_TYPE", "Release"],
+      "group": "build",
+      "problemMatcher": ["$gcc"],
+    },
+
+    {
+      "label": "GCC/Clang-Debug-Build",
+      "type": "shell",
+      "command": "cmake",
+      "args": ["--build", "build"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": ["$gcc"],
+      "dependsOn": "GCC/Clang Debug Preset"
+    },
+    {
+      "label": "GCC/Clang-Release-Build",
+      "type": "shell",
+      "command": "cmake",
+      "args": ["--build", "build"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": ["$gcc"],
+      "dependsOn": "GCC/Clang Release Preset"
+    },
+
+
+    {
+      "label": "MSVC Configure Preset",
+      "type": "shell",
+      "command": "cmake",
+      "args": ["--preset", "msvc"],
+      "group": "build",
+      "problemMatcher": ["$msCompile"],
+      "detail": "Run CMake configuration"
+    },
+
+    {
+      "label": "MSVC-Debug-Build",
+      "type": "shell",
+      "command": "cmake",
+      "args": ["--build", "${workspaceFolder}/build", "--config", "Debug"],
+      "group": "build",
+      "problemMatcher": ["$msCompile"],
+      "dependsOn": "MSVC Configure Preset"
+    },
+    {
+      "label": "MSVC-Release-Build",
+      "type": "shell",
+      "command": "cmake",
+      "args": ["--build", "${workspaceFolder}/build", "--config", "Release"],
+      "group": "build",
+      "problemMatcher": ["$msCompile"],
+      "dependsOn": "MSVC Configure Preset"
+    }
+  ],
+  "version": "2.0.0"
+}

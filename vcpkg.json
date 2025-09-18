@@ -1,0 +1,8 @@
+{
+  "dependencies": [
+    "spdlog",
+    "gtest",
+    "benchmark"
+  ],
+  "builtin-baseline": "dc377383aa2b1e31e65ea1127b0d3704594908c1"
+}
