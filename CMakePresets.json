@@ -68,6 +68,15 @@
         "VCPKG_HOST_TRIPLET": "x64-mingw-static"
       }
     },
+    
+    {
+      "name": "default",
+      "inherits": ["_vcpkg"],
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
 
     {
       "name": "msvc",
@@ -88,15 +97,6 @@
       "inherits": ["_gcc", "_vcpkg", "_debug"],
       "displayName": "(GCC/Clang) Debug + vcpkg",
       "description": "Build with Ninja in Debug mode using vcpkg as pkg manager."
-    },
-
-    {
-      "name": "default",
-      "inherits": ["_vcpkg"],
-      "generator": "Ninja",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
-      }
     },
 
     {

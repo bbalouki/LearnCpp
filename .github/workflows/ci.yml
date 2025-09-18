@@ -18,6 +18,9 @@ jobs:
     - name: Set up vcpkg
       uses: lukka/run-vcpkg@v11
     
+    - name: Install Protobuf
+      run: sudo apt install -y protobuf-compiler
+    
     - name: Configure CMake
       run: cmake --preset default
 
