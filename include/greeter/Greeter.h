@@ -70,7 +70,7 @@ class Greeter {
     std::string simple_greet() const;
 
    private:
-    std::string name_;
-    float enthusiasm_ = 0.5f;
+    std::string name_{"User"};
+    float enthusiasm_ {0.5F};
     std::unique_ptr<IDateProvider> date_provider_;
 };

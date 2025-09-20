@@ -13,27 +13,26 @@ elseif (MSVC OR CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
 endif()
 
 if (SANITIZER_SUPPORTED)
-  if (MSVC)
-    add_compile_options(
-      "$<$<CONFIG:Sanitize>:/fsanitize=address>"
-      "$<$<CONFIG:Sanitize>:/Zi>"
-    )
-    add_link_options(
-      "$<$<CONFIG:Sanitize>:/fsanitize=address>"
-    )
-  else()
-    add_compile_options(
-      "$<$<CONFIG:Sanitize>:-fsanitize=address>"
-      "$<$<CONFIG:Sanitize>:-fno-omit-frame-pointer>"
-      "$<$<CONFIG:Sanitize>:-g>"
-    )
-    add_link_options(
-      "$<$<CONFIG:Sanitize>:-fsanitize=address>"
-    )
-  endif()
-
   if (CMAKE_BUILD_TYPE STREQUAL "Sanitize")
     message(STATUS "Enabling AddressSanitizer")
+    if (MSVC)
+      add_compile_options(
+        "$<$<CONFIG:Sanitize>:/fsanitize=address>"
+        "$<$<CONFIG:Sanitize>:/Zi>"
+      )
+      add_link_options(
+        "$<$<CONFIG:Sanitize>:/fsanitize=address>"
+      )
+    else()
+      add_compile_options(
+        "$<$<CONFIG:Sanitize>:-fsanitize=address>"
+        "$<$<CONFIG:Sanitize>:-fno-omit-frame-pointer>"
+        "$<$<CONFIG:Sanitize>:-g>"
+      )
+      add_link_options(
+        "$<$<CONFIG:Sanitize>:-fsanitize=address>"
+      )
+    endif()
   endif()
 else()
   if (CMAKE_BUILD_TYPE STREQUAL "Sanitize")

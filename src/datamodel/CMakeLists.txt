@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 3.27)
 
 
 # find_package(protobuf CONFIG REQUIRED)
@@ -27,12 +27,17 @@ cmake_minimum_required(VERSION 3.21)
 find_package(protobuf CONFIG REQUIRED)
 add_library(DataModel)
 
-# This replaces our add_custom_command() call
 protobuf_generate(
   TARGET DataModel
   LANGUAGE cpp
   PROTOS proto/person.proto
   IMPORT_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/proto
+  OUT_VAR PROTO_GENERATED_FILES 
+)
+
+set_source_files_properties(
+  ${PROTO_GENERATED_FILES} 
+  PROPERTIES SKIP_LINTING ON
 )
 
 target_include_directories(DataModel PUBLIC
