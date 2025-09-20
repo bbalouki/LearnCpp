@@ -1,6 +1,5 @@
 # .clang-format
-# This configuration file is based on the Google C++ Style Guide but has been
-# customized with modern best practices for readability and maintainability.
+# This configuration file is based on the Google C++ Style Guide.
 #
 # To use this file, place it in your project's root directory. Most C++
 # editors and IDEs will automatically detect and use it.
@@ -11,8 +10,6 @@
 # We start with the Google style as our foundation.
 BasedOnStyle: Google
 
-# --- Language & Standard ---
-
 # Set the language to C++.
 Language: Cpp
 
@@ -20,3 +17,4 @@ Language: Cpp
 # preferred over hardcoding a specific standard like 'Cpp17' or 'Cpp20' to
 # make this file more future-proof.
 Standard: Latest
+

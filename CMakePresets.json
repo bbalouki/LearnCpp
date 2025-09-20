@@ -68,6 +68,15 @@
         "VCPKG_HOST_TRIPLET": "x64-mingw-static"
       }
     },
+    
+    {
+      "name": "default",
+      "inherits": ["_vcpkg"],
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
 
     {
       "name": "msvc",

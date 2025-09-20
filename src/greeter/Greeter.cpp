@@ -5,7 +5,7 @@
 #include "InternalDetails.h"
 
 std::string get_arch_string() {
-#if defined(ARCH_64BIT)
+#ifdef ARCH_64BIT
     return "Compiled for 64-bit!";
 #elif defined(ARCH_32BIT)
     return "Compiled for 32-bit!";
@@ -21,16 +21,13 @@ std::string get_internal_greeting() {
 std::string get_greeting() { return "Hello from the modular greeter library"; }
 
 void Greeter::setEnthusiasm(float level) {
-    if (level < 0.0f || level > 1.0f) {
+    if (level < 0.0F || level > 1.0F) {
         throw std::out_of_range("Enthusiasm must be between 0.0 and 1.0");
     }
     enthusiasm_ = level;
 }
 
 float Greeter::getEnthusiasm() const { return enthusiasm_; }
-
-// Forward declaration of the factory function
-std::unique_ptr<IDateProvider> createDateProvider();
 
 // Default constructor uses ChronoDateProvider
 Greeter::Greeter() : date_provider_(createDateProvider()) {}
@@ -58,6 +55,7 @@ std::string Greeter::greet() const {
     int day{date_provider_->getDayOfWeek()};
     std::string day_str;
     switch (day) {
+        // NOLINTBEGIN
         case 1:
             day_str = "Happy Monday!";
             break;
@@ -67,6 +65,7 @@ std::string Greeter::greet() const {
         default:
             day_str = "Have a nice day!";
             break;
+        // NOLINTEND
     }
     return day_str + " Hello from the Greeter class!";
 }
