@@ -54,13 +54,13 @@
     },
 
     {
-      "name": "_msvc",
+      "name": "_VS",
       "hidden": true,
       "generator": "Visual Studio 17 2022"
     },
 
     {
-      "name": "_gcc",
+      "name": "_ninja",
       "hidden": true,
       "generator": "Ninja",
       "cacheVariables": {
@@ -68,7 +68,7 @@
         "VCPKG_HOST_TRIPLET": "x64-mingw-static"
       }
     },
-    
+
     {
       "name": "default",
       "inherits": ["_vcpkg"],
@@ -79,57 +79,57 @@
     },
 
     {
-      "name": "msvc",
-      "inherits": ["_msvc", "_vcpkg"],
+      "name": "win",
+      "inherits": ["_VS", "_vcpkg"],
       "displayName": "MSVC + vcpkg",
       "description": "Build using Visual Studio 2022 using vcpkg for dependency management."
     },
 
     {
-      "name": "msvc-conan",
-      "inherits": ["_msvc", "_conan"],
+      "name": "win-conan",
+      "inherits": ["_VS", "_conan"],
       "displayName": "MSVC + Conan",
       "description": "Build using Visual Studio 2022 using Conan as the dependency manager."
     },
 
     {
-      "name": "gcc",
-      "inherits": ["_gcc", "_vcpkg", "_debug"],
+      "name": "nix",
+      "inherits": ["_ninja", "_vcpkg", "_debug"],
       "displayName": "(GCC/Clang) Debug + vcpkg",
       "description": "Build with Ninja in Debug mode using vcpkg as pkg manager."
     },
-
+    
     {
-      "name": "gcc-conan",
-      "inherits": ["_gcc", "_vcpkg", "_debug"],
-      "displayName": "(GCC/Clang) Debug + Conan",
-      "description": "Build with Ninja in Debug mode using Conan as pkg manager."
-    },
-
-    {
-      "name": "gcc-rel",
-      "inherits": ["_gcc", "_vcpkg", "_release"],
+      "name": "nix-rel",
+      "inherits": ["_ninja", "_vcpkg", "_release"],
       "displayName": "(GCC/Clang) Release + vcpkg",
       "description": "Optimized Release build with Ninja using vcpkg as pkg manager."
     },
 
     {
-      "name": "gcc-conan-rel",
-      "inherits": ["_gcc", "_conan", "_release"],
+      "name": "nix-conan",
+      "inherits": ["_ninja", "_vcpkg", "_debug"],
+      "displayName": "(GCC/Clang) Debug + Conan",
+      "description": "Build with Ninja in Debug mode using Conan as pkg manager."
+    },
+
+    {
+      "name": "nix-conan-rel",
+      "inherits": ["_ninja", "_conan", "_release"],
       "displayName": "(GCC/Clang) Release + Conan",
       "description": "Optimized Release build with Ninja using Conan as pkg manager."
     },
 
     {
-      "name": "gcc-cov",
-      "inherits": ["_gcc", "_vcpkg", "_coverage"],
+      "name": "nix-cov",
+      "inherits": ["_ninja", "_vcpkg", "_coverage"],
       "displayName": "(GCC/Clang) Coverage + vcpkg",
       "description": "Instrumented with Ninja for code coverage analysis, using vcpkg as pkg manager."
     },
 
     {
-      "name": "gcc-san",
-      "inherits": ["_gcc", "_vcpkg", "_sanitize"],
+      "name": "nix-san",
+      "inherits": ["_ninja", "_vcpkg", "_sanitize"],
       "displayName": "(GCC/Clang) Sanitizers + vcpkg",
       "description": "Debug build with Ninja enabling sanitizers using vcpkg as pkg manager."
     }
