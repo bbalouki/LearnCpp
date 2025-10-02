@@ -5,7 +5,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "gcc-debug-lunch",
+      "name": "nix-debug-lunch",
       "type": "cppdbg",
       "request": "launch",
       "program": "${workspaceFolder}/build/LearnCpp.exe",
@@ -27,7 +27,7 @@
     },
 
     {
-      "name": "gcc-release-lunch",
+      "name": "nix-release-lunch",
       "type": "cppdbg",
       "request": "launch",
       "program": "${workspaceFolder}/build/LearnCpp.exe",
@@ -42,50 +42,6 @@
         {
           "description": "Enable pretty printing for gdb",
           "text": "-enable-pretty-printing",
-          "ignoreFailures": true
-        }
-      ],
-      "preLaunchTask": "GCC/Clang-Release-Build"
-    },
-
-    {
-      "name": "clang-debug-launch",
-      "type": "cppdbg",
-      "request": "launch",
-      "program": "${workspaceFolder}/build/LearnCpp.exe",
-      "args": [],
-      "stopAtEntry": false,
-      "cwd": "${workspaceFolder}",
-      "environment": [],
-      "externalConsole": true,
-      "MIMode": "lldb",
-      "miDebuggerPath": "C:/msys64/clang64/bin/lldb.exe",
-      "setupCommands": [
-        {
-          "description": "Enable pretty printing for lldb",
-          "text": "settings set target.pretty-printing true",
-          "ignoreFailures": true
-        }
-      ],
-      "preLaunchTask": "GCC/Clang-Debug-Build"
-    },
-
-    {
-      "name": "clang-release-launch",
-      "type": "cppdbg",
-      "request": "launch",
-      "program": "${workspaceFolder}/build/LearnCpp.exe",
-      "args": [],
-      "stopAtEntry": false,
-      "cwd": "${workspaceFolder}",
-      "environment": [],
-      "externalConsole": true,
-      "MIMode": "lldb",
-      "miDebuggerPath": "C:/msys64/clang64/bin/lldb.exe",
-      "setupCommands": [
-        {
-          "description": "Enable pretty printing for lldb",
-          "text": "settings set target.pretty-printing true",
           "ignoreFailures": true
         }
       ],

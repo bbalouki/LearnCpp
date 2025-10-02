@@ -4,18 +4,24 @@
       "label": "GCC/Clang Debug Preset",
       "type": "shell",
       "command": "cmake",
-      "args": ["--preset", "gcc", "-DCMAKE_BUILD_TYPE", "Debug"],
+      "args": ["--preset", "nix"],
       "group": "build",
       "problemMatcher": ["$gcc"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
     },
 
     {
       "label": "GCC/Clang Release Preset",
       "type": "shell",
       "command": "cmake",
-      "args": ["--preset", "gcc", "-DCMAKE_BUILD_TYPE", "Release"],
+      "args": ["--preset", "nix-rel"],
       "group": "build",
       "problemMatcher": ["$gcc"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
     },
 
     {
@@ -54,7 +60,7 @@
       "label": "MSVC Configure Preset",
       "type": "shell",
       "command": "cmake",
-      "args": ["--preset", "msvc"],
+      "args": ["--preset", "win"],
       "group": "build",
       "problemMatcher": ["$msCompile"],
       "detail": "Run CMake configuration"
