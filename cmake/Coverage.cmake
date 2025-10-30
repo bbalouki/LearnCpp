@@ -1,20 +1,39 @@
 cmake_minimum_required(VERSION 3.23)
 
-# Add coverage flags for GCC/Clang in the "Coverage" build type
-set(COVERAGE_CONDITION
-  "$<AND:$<CONFIG:Coverage>,$<CXX_COMPILER_ID:GNU,Clang>>"
-)
-set(COVERAGE_FLAGS "$<${COVERAGE_CONDITION}:--coverage>")
-add_compile_options(${COVERAGE_FLAGS})
-add_link_options(${COVERAGE_FLAGS})
+option(
+  CODE_COVERAGE
+  "Enable code coverage instrumentation" OFF
+  )
+
+if(
+  CODE_COVERAGE 
+  AND (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+  )
+    message(STATUS "Code coverage enabled")
+    if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+        message(WARNING "It's recommended to use Debug build type for code coverage")
+    endif()
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+        add_compile_options(
+          -O0 -g
+          -fcoverage-mapping 
+          -fcoverage-mcdc 
+          -ftest-coverage 
+          --coverage
+        )
+    else()
+        add_compile_options(-O0 -ggdb --coverage)
+    endif()        
+    add_link_options(--coverage)
+endif()
 
 find_program(GCOVR_EXE gcovr)
 if(GCOVR_EXE)
-  add_custom_target(coverage
+  add_custom_target(
+    coverage
     COMMAND ${GCOVR_EXE}
       -r "${CMAKE_SOURCE_DIR}"
-      --filter "${CMAKE_SOURCE_DIR}/src/greeter/"
-      --filter "${CMAKE_SOURCE_DIR}/src/app/"
+      --filter "${CMAKE_SOURCE_DIR}/src/"
       --html "coverage.html"
     COMMENT "Generating code coverage report..."
   )

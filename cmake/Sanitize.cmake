@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.23)
 
 set(SANITIZER_SUPPORTED OFF)
+option(ENABLE_SANITIZER "Enable Address Sanitizer" OFF)
 
 if (MINGW)
   if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
@@ -13,29 +14,18 @@ elseif (MSVC OR CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
 endif()
 
 if (SANITIZER_SUPPORTED)
-  if (CMAKE_BUILD_TYPE STREQUAL "Sanitize")
+  if (ENABLE_SANITIZER)
     message(STATUS "Enabling AddressSanitizer")
-    if (MSVC)
-      add_compile_options(
-        "$<$<CONFIG:Sanitize>:/fsanitize=address>"
-        "$<$<CONFIG:Sanitize>:/Zi>"
-      )
-      add_link_options(
-        "$<$<CONFIG:Sanitize>:/fsanitize=address>"
-      )
+    if(MSVC AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+      add_compile_options(/fsanitize=address /Zi)
+      add_link_options(/INCREMENTAL:NO)
     else()
-      add_compile_options(
-        "$<$<CONFIG:Sanitize>:-fsanitize=address>"
-        "$<$<CONFIG:Sanitize>:-fno-omit-frame-pointer>"
-        "$<$<CONFIG:Sanitize>:-g>"
-      )
-      add_link_options(
-        "$<$<CONFIG:Sanitize>:-fsanitize=address>"
-      )
+      add_compile_options(-fsanitize=address -fno-omit-frame-pointer -g)
+      add_link_options(-fsanitize=address)
     endif()
   endif()
 else()
-  if (CMAKE_BUILD_TYPE STREQUAL "Sanitize")
+  if (ENABLE_SANITIZER)
     message(WARNING "Sanitizers are NOT supported with ${CMAKE_CXX_COMPILER_ID} on MinGW. Skipping.")
   endif()
 endif()
