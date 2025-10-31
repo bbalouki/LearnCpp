@@ -1,45 +1,42 @@
 cmake_minimum_required(VERSION 3.20)
 
+project(LEARNCPP VERSION "1.0")
+
 include(${CMAKE_SOURCE_DIR}/cmake/Helpers.cmake)
+include(${CMAKE_SOURCE_DIR}/cmake/Versions.cmake)
 
-project(
-    LearnCpp
-    VERSION "1.0"
-)
-set(LEARNCPP_CXX_STANDARD 20 CACHE STRING "C++ standard for the project")
-set(CMAKE_CXX_STANDARD ${LEARNCPP_CXX_STANDARD})
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
+if(${PROJECT_NAME}_ADD_COVERAGE_ANALYSIS)
+    add_coverage_analysis()
+endif()
+if(${PROJECT_NAME}_APPLY_FORMATING)
+    apply_formating(${PROJECT_NAME}_USE_PER_FILE_FORMATTING)
+endif()
+if(${PROJECT_NAME}_APPLY_CLANG_TIDY_GLOBALY)
+    apply_clang_tidy_globaly()
+endif()
+if(${PROJECT_NAME}_BUILD_DOCUMENTATION)
+    build_documenation()
+endif()
+if(${PROJECT_NAME}_ENABLE_ADDRESS_SANITIZER)
+    anable_address_sanitizer()
+endif()
 
-
-add_executable(
-    LearnCpp
-    main.cpp
-)
-
-# if(LEARNCPP_PROJECT_ENV STREQUAL "DEV")
-#     include(cmake/Tidy.cmake)
-#     include(cmake/Format.cmake)
-#     include(cmake/Coverage.cmake)
-# endif()
-
-# include(cmake/Sanitize.cmake)
 # add_subdirectory(src/datamodel)
 # add_subdirectory(src/greeter)
 # add_subdirectory(src/date)
 # add_subdirectory(src/app)
 
-# if (LEARNCPP_BUILD_TESTS)
+# if (${PROJECT_NAME}_BUILD_TESTS)
 #     enable_testing()
 #     add_subdirectory(tests)
 # endif()
 
-# if (LEARNCPP_BUILD_BENCHMARKS)
+# if (${PROJECT_NAME}_BUILD_BENCHMARKS)
 #     add_subdirectory(benchmarks)
 # endif()
 
-# if (LEARNCPP_BUILD_EXAMPLES)
-#     add_subdirectory(examples)
-# endif()
+if (${PROJECT_NAME}_BUILD_EXAMPLES)
+    add_subdirectory(examples)
+endif()
 
 

@@ -37,14 +37,17 @@
     {
       "name": "_coverage",
       "hidden": true,
-      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug", "CODE_COVERAGE": "ON" }
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "ADD_COVERAGE_ANALYSIS": "ON"
+      }
     },
     {
       "name": "_sanitize",
       "hidden": true,
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
-        "ENABLE_SANITIZER": "ON"
+        "ENABLE_ADDRESS_SANITIZER": "ON"
       }
     },
     {
