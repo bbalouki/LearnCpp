@@ -4,7 +4,7 @@
       "label": "GCC/Clang Debug Preset",
       "type": "shell",
       "command": "cmake",
-      "args": ["--preset", "nix"],
+      "args": ["--preset", "cross"],
       "group": "build",
       "problemMatcher": ["$gcc"],
       "options": {
@@ -16,7 +16,7 @@
       "label": "GCC/Clang Release Preset",
       "type": "shell",
       "command": "cmake",
-      "args": ["--preset", "nix-rel"],
+      "args": ["--preset", "cross-rel"],
       "group": "build",
       "problemMatcher": ["$gcc"],
       "options": {
