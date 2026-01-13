@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.23)
 
-find_package(GTest CONFIG REQUIRED)
 add_executable(GreeterAppTests test_app.cpp)
 
 # Link against the logic library, NOT the executable
@@ -10,9 +9,13 @@ target_link_libraries(GreeterAppTests PRIVATE
   GTest::gmock
   GTest::gmock_main
 )
+target_include_directories(GreeterAppTests PRIVATE 
+    ${PROJECT_SOURCE_DIR}/src/app
+)
 
 include(GoogleTest)
 gtest_discover_tests(
   GreeterAppTests
+  DISCOVERY_MODE PRE_TEST
   PROPERTIES LABELS "application"
 )

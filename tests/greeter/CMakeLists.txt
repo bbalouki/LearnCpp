@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.23)
 
-find_package(GTest CONFIG REQUIRED)
 add_executable(GreeterLibTests test_greeter.cpp)
 
 target_link_libraries(

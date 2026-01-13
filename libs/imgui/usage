@@ -1,4 +1,4 @@
 ImGui provides CMake targets:
 
-find_package(ImGui CONFIG REQUIRED)
-target_link_libraries(main PRIVATE ImGui::ImGui)
+    find_package(ImGui CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE ImGui::ImGui)

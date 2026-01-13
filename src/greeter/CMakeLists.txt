@@ -1,11 +1,46 @@
+cmake_minimum_required(VERSION 3.20)
 
+set(LIB_SOURCES 
+    Greeter.cpp
+    ChronoDateProvider.cpp
+)
+if (WIN32)
+    message(STATUS "Using platform_win.cpp")
+    list(APPEND LIB_SOURCES platform_win.cpp)
+else()
+    message(STATUS, "Using platform_nix.cpp")
+    list(APPEND LIB_SOURCES platform_nix.cpp)
+endif()
 
+add_library(GreeterLib ${LIB_SOURCES})
+set_cxx_std(GreeterLib 23) # CXX standard
+target_link_libraries(GreeterLib warnings::strict)
+if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+    target_compile_definitions(GreeterLib PRIVATE ARCH_64BIT)
+    message(STATUS "Targeting 64-bit architecture")
+else()
+    target_compile_definitions(GreeterLib Private ARCH_32BIT)
+    message(STATUS "Targeting 32-bit arhictecture")
+endif()
+
+add_library(Greeter::Lib ALIAS GreeterLib)
+
+target_include_directories(GreeterLib PUBLIC 
+    ${PROJECT_SOURCE_DIR}/include
+)
+target_include_directories(GreeterLib PRIVATE 
+    ${PROJECT_SOURCE_DIR}/src/greeter
+)
+install(TARGETS GreeterLib 
+    DESTINATION "${CMAKE_SOURCE_DIR}/bin"
+)
+##################################################################################""
 # # Step 1: Declaring a project()
 # project(GreeterLib VERSION 1.0.0)
 
 # include(GNUInstallDirs)
 
-# add_library(GreeterLib Greeter.cpp)
+# add_library(GreeterLib Greeter.cpp ChronoDateProvider.cpp)
 # add_library(GreeterLib::Lib ALIAS GreeterLib)
 # set_target_properties(
 #     GreeterLib PROPERTIES
@@ -16,8 +51,15 @@
 # # Step 2: Updating Include Directories
 # target_include_directories(
 #     GreeterLib PUBLIC 
-#     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-#     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+#     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
+#     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+#     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/greeter>
+
+# )
+# target_include_directories(
+#     GreeterLib PRIVATE 
+#     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
+#     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/greeter>
 #     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/greeter>
 
 # )
@@ -72,43 +114,3 @@
 #     "${CMAKE_CURRENT_BINARY_DIR}/GreeterLibConfigVersion.cmake"
 #     DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/GreeterLib"
 # )
-
-# Step 9: Renaming Things
-
-cmake_minimum_required(VERSION 3.20)
-include(${CMAKE_SOURCE_DIR}/cmake/TargetHelpers.cmake)
-
-set(LIB_SOURCES 
-    Greeter.cpp
-    ChronoDateProvider.cpp
-)
-if (WIN32)
-    # message(STATUS "Using platform_win.cpp")
-    list(APPEND LIB_SOURCES platform_win.cpp)
-else()
-    # message(STATUS, "Using platform_nix.cpp")
-    list(APPEND LIB_SOURCES platform_nix.cpp)
-endif()
-
-add_library(GreeterLib ${LIB_SOURCES})
-setup_target(GreeterLib) # CXX standard
-target_link_libraries(GreeterLib StrictWarnings)
-if (CMAKE_SIZEOF_VOID_P EQUAL 8)
-    target_compile_definitions(GreeterLib PRIVATE ARCH_64BIT)
-    message(STATUS "Targeting 64-bit architecture")
-else()
-    target_compile_definitions(GreeterLib Private ARCH_32BIT)
-    message(STATUS "Targeting 32-bit arhictecture")
-endif()
-
-add_library(Greeter::Lib ALIAS GreeterLib)
-
-target_include_directories(GreeterLib PUBLIC 
-    ${PROJECT_SOURCE_DIR}/include
-)
-target_include_directories(GreeterLib PRIVATE 
-    ${PROJECT_SOURCE_DIR}/src/greeter
-)
-install(TARGETS GreeterLib 
-    DESTINATION "${CMAKE_SOURCE_DIR}/bin"
-)

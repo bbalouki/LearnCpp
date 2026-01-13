@@ -38,7 +38,7 @@ gcovr -r . --filter 'src/' --html 'build/coverage.html'
 
 ## VCPKG PACKAGING
 https://learn.microsoft.com/en-us/vcpkg/get_started/get-started-packaging?pivots=shell-bash
-mkdir packaging
+mkdir packaging or libs
 cd packaging && mkdir {{packag}} && touch vcpkg.json portfile.cmake usage
 vcpkg install --overlay-ports=./packaging {{packag}}
 update SHA512 value in the portfile.cmake
@@ -54,8 +54,8 @@ git add ports/{{package}}
 git commit -m "Add {{ package}} library to vcpkg"
 
 vcpkg format-manifest "path/to/{{package}}/vcpkg.json"
-vcpkg x-add-version itch
-git s
+vcpkg x-add-version {package}
+git status
 git commit -m "version database"
 
 git push myfork {{package}}
