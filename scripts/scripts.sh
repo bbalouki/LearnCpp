@@ -53,7 +53,7 @@ cp -R path/to/{{package}} ports/{{package}}
 git add ports/{{package}}
 git commit -m "Add {{ package}} library to vcpkg"
 
-vcpkg format-manifest "path/to/{{package}}/vcpkg.json"
+vcpkg format-manifest "ports/{{package}}/vcpkg.json"
 vcpkg x-add-version {package}
 git status
 git commit -m "version database"
