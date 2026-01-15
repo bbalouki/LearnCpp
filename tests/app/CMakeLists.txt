@@ -16,6 +16,5 @@ target_include_directories(GreeterAppTests PRIVATE
 include(GoogleTest)
 gtest_discover_tests(
   GreeterAppTests
-  DISCOVERY_MODE PRE_TEST
   PROPERTIES LABELS "application"
 )
