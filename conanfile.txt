@@ -1,6 +1,10 @@
 [requires]
-spdlog/1.15.3
+spdlog/1.17.0
 gtest/1.17.0
+tabulate/1.5
+benchmark/1.9.4
+protobuf/6.32.1
+argparse/3.2
 
 [generators]
 CMakeDeps
