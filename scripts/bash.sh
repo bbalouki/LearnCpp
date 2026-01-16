@@ -1,3 +1,28 @@
+# Function: coni
+# Description: A wrapper for 'conan install' that simplifies the command syntax.
+#              It installs dependencies into a local 'build' folder and 
+#              builds any missing binaries from source.
+# Prerequisites:
+#    - conan must be installed on your system and add on the system Path
+#       or installed via python and accessible in the current session.
+#
+# Usage: coni <profile_name>
+#
+# Arguments:
+#   $1 (profile_name): The specific Conan profile to use (e.g., default, debug).
+#
+# Returns:
+#   0: If installation succeeds.
+#   1: If the profile name argument is missing or conan fails.
+coni() {
+    if [ -z "$1" ]; then
+        echo "Error: Please provide a profile name."
+        echo "Usage: coni <profile_name>" 
+        return 1
+    fi
+    conan install . --output-folder=build --build=missing --profile "$1"
+}
+
 
 # Build the project using CMake presets
 # Usage: build [-c|--compiler COMPILER] [-b|--build-type BUILD_TYPE] [preset_name]

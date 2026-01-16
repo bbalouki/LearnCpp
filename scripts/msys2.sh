@@ -2,6 +2,33 @@ PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\] \W\[\033[00m\]\n\$ '
 alias python="python3"
 alias rmf="rm -rf"
 
+# ----------------------------------------------------------------------------------
+# Function: coni
+# Description: A wrapper for 'conan install' that simplifies the command syntax.
+#              It installs dependencies into a local 'build' folder and 
+#              builds any missing binaries from source.
+# Prerequisites:
+#    - conan must be installed on your system and add on the system Path
+#       or installed via python and accessible in the current session.
+#
+# Usage: coni <profile_name>
+#
+# Arguments:
+#   $1 (profile_name): The specific Conan profile to use (e.g., default, debug).
+#
+# Returns:
+#   0: If installation succeeds.
+#   1: If the profile name argument is missing or conan fails.
+# ----------------------------------------------------------------------------------
+coni() {
+    if [ -z "$1" ]; then
+        echo "Error: Please provide a profile name."
+        echo "Usage: coni <profile_name>" 
+        return 1
+    fi
+    conan install . --output-folder=build --build=missing --profile "$1"
+}
+
 # -----------------------------------------------------------------------------
 # Function: compile
 # Description:

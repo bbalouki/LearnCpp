@@ -9,11 +9,11 @@ function rmf {
 
 # -----------------------------------------------------------------------------
 # Variable: $vcvarsPath
-# Description:
+# .DESCRIPTION
 #   A global variable holding the hardcoded path to the MSVC environment
 #   setup script (vcvars64.bat).
 #
-#   NOTE: This path may need to be adjusted based on your specific Visual
+#   NOTE This path may need to be adjusted based on your specific Visual
 #   Studio version (e.g., 2019, 2022) and edition (e.g., Community,
 #   Professional, BuildTools).
 # -----------------------------------------------------------------------------
@@ -21,7 +21,7 @@ $vcvarsPath = 'C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC
 
 # -----------------------------------------------------------------------------
 # Function: lvcvars
-# Description:
+# .DESCRIPTION
 #   Loads the Microsoft Visual C++ (MSVC) developer environment into the
 #   current PowerShell session.
 #
@@ -35,7 +35,7 @@ $vcvarsPath = 'C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC
 #   - The global variable '$vcvarsPath' must point to the correct location
 #     of the 'vcvars64.bat' script on your system.
 #
-# Usage:
+# .EXAMPLE
 #   lvcvars
 #
 # Key Behavior:
@@ -46,7 +46,7 @@ $vcvarsPath = 'C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC
 #     PowerShell session's environment.
 #   - Provides clear error messages if the script is not found or fails.
 #
-# Examples:
+# .EXAMPLE
 #   # Load the MSVC environment into the current shell
 #   lvcvars
 #
@@ -72,10 +72,52 @@ function lvcvars {
     }
 }
 
+<#
+.SYNOPSIS
+    A wrapper for 'conan install' to streamline dependency installation.
+
+.DESCRIPTION
+    The Invoke-ConanInstall function runs the Conan package manager installation 
+    command for the current directory. It enforces specific build settings:
+    1. Outputs generated files to a local 'build' directory.
+    2. Builds missing binary packages from source automatically.
+    3. Uses the specified Conan profile.
+
+Prerequisites:
+    - conan must be installed on your system and add on the system Path
+        or installed via python and accessible in the current session.
+
+.PARAMETER ProfileName
+    The name of the Conan profile to use (e.g., 'default', 'debug', 'release').
+    This parameter is mandatory.
+
+.EXAMPLE
+    Invoke-ConanInstall -ProfileName default
+    
+    Installs dependencies using the 'default' profile.
+
+.EXAMPLE
+    Invoke-ConanInstall debug
+
+    Installs dependencies using the 'debug' profile (positional argument).
+
+.LINK
+    https://docs.conan.io/
+#>
+function Invoke-ConanInstall {
+    param (
+        [Parameter(Mandatory=$true, Position=0)]
+        [string]$ProfileName
+    )
+
+    conan install . --output-folder=build --build=missing --profile $ProfileName
+}
+Set-Alias coni Invoke-ConanInstall
+
 
 # -----------------------------------------------------------------------------
 # Function: build
-# Description:
+# .DESCRIPTION
 #   Configures and builds a CMake project using PowerShell.
 #
 #   This function simplifies the standard two-step CMake process by providing
@@ -88,7 +130,7 @@ function lvcvars {
 #   - A 'CMakeLists.txt' file must exist in the project's root directory.
 #   - A 'CMakePresets.json' file should exist to define the presets.
 #
-# Usage:
+# .EXAMPLE
 #   build [-Preset <string>] [-BuildType <string>]
 #   build [-p <string>] [-b <string>]
 #
@@ -102,7 +144,7 @@ function lvcvars {
 #       The '--config' flag is used, making it suitable for multi-config
 #       generators like Visual Studio. Defaults to "Debug".
 #
-# Examples:
+# .EXAMPLE
 #   # Configure and build using the "default" preset and "Debug" build type
 #   build
 #
@@ -159,7 +201,7 @@ function build {
 
 # -----------------------------------------------------------------------------
 # Function: compile
-# Description:
+# .DESCRIPTION
 #   Directly compiles all C++ source files in the current directory and its
 #   subdirectories using the Microsoft Visual C++ (MSVC) compiler (cl.exe).
 #
@@ -172,7 +214,7 @@ function build {
 #   has been initialized, such as a "Developer Command Prompt for VS" or after
 #   running the vcvarsall.bat script. Otherwise, `cl.exe` will not be found.
 #
-# Usage:
+# .EXAMPLE
 #   compile [output_name] [linker_flags...]
 #
 # Arguments:
@@ -191,7 +233,7 @@ function build {
 #     (/std:c++latest), and strict warnings (/W4 /WX).
 #   - Cleans up generated program database (.pdb) files from the root folder.
 #
-# Examples:
+# .EXAMPLE
 #   # Compile all .cpp files into "build\Debug\Program.exe"
 #   compile
 #
