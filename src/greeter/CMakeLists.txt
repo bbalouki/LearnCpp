@@ -13,7 +13,7 @@ else()
 endif()
 
 add_library(GreeterLib ${LIB_SOURCES})
-set_cxx_std(GreeterLib 23) # CXX standard
+set_cxx_std(GreeterLib 20) # CXX standard
 target_link_libraries(GreeterLib warnings::strict)
 if (CMAKE_SIZEOF_VOID_P EQUAL 8)
     target_compile_definitions(GreeterLib PRIVATE ARCH_64BIT)

@@ -11,6 +11,27 @@ if(NOT GTest_FOUND)
     FetchContent_MakeAvailable(GTest)
 endif()
 
+add_executable(
+    GreeterTests 
+    app/test_app.cpp
+    greeter/test_greeter.cpp
+)
 
-add_subdirectory(greeter)
-add_subdirectory(app)
+# Link against the logic library, NOT the executable
+target_link_libraries(GreeterTests PRIVATE
+    GreeterAppLogic
+    GreeterLib
+    GTest::gtest 
+    GTest::gmock
+    GTest::gtest_main
+    GTest::gmock_main
+)
+target_include_directories(GreeterTests PRIVATE 
+    ${PROJECT_SOURCE_DIR}/src/app
+)
+
+include(GoogleTest)
+gtest_discover_tests(
+  GreeterTests
+  PROPERTIES LABELS "application"
+)
