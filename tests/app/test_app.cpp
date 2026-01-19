@@ -7,7 +7,6 @@
 
 #include "run.h"
 
-
 // Helper function to create valid argv
 std::vector<char*> create_args(const std::vector<std::string>& args) {
     std::vector<char*> argv;

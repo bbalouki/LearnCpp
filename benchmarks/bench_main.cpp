@@ -19,7 +19,7 @@ BENCHMARK(BM_Greeter_Greet);
 
 static void BM_Greeter_Greet_Name(benchmark::State& states) {
     // state.range(0) is the first argument to the benchmark
-    const auto size = static_cast<std::string::size_type>(states.range(0));
+    const auto  size = static_cast<std::string::size_type>(states.range(0));
     std::string name(size, 'x');
     Greeter     my_greeter(name);
 

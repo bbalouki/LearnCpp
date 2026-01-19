@@ -5,7 +5,5 @@
 #include <string>
 
 namespace Date {
-inline std::string Today() {
-    return std::format("{:%A}", std::chrono::system_clock::now());
-}
+inline std::string Today() { return std::format("{:%A}", std::chrono::system_clock::now()); }
 }  // namespace Date

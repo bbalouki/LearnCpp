@@ -32,10 +32,12 @@ void printCppStandard() {
     static const int numStandards = 7;
     // The C++26 stdCode is a placeholder since the exact code won't be
     // determined until the standard is finalized
-    static const long  stdCode[numStandards] = {199711L, 201103L, 201402L, 201703L,
-                                                202002L, 202302L, 202612L};
-    static const char* stdName[numStandards] = {"Pre-C++11", "C++11", "C++14", "C++17",
-                                                "C++20",     "C++23", "C++26"};
+    static const long stdCode[numStandards] = {
+        199711L, 201103L, 201402L, 201703L, 202002L, 202302L, 202612L
+    };
+    static const char* stdName[numStandards] = {
+        "Pre-C++11", "C++11", "C++14", "C++17", "C++20", "C++23", "C++26"
+    };
 
     if (standard == -1) {
         std::cout << "Error: Unable to determine your language standard.  Sorry.\n";
@@ -77,18 +79,20 @@ using Seed  = std::seed_seq;
 // Seed source (can be slow, so call once)
 // Create a seed sequence from the random device
 auto        seed_source = Clock::now().time_since_epoch().count();
-static Seed seed{static_cast<Seed::result_type>(seed_source),
-                 rd_device(),
-                 rd_device(),
-                 rd_device(),
-                 rd_device(),
-                 rd_device(),
-                 rd_device(),
-                 rd_device(),
-                 rd_device()};
+static Seed seed {
+    static_cast<Seed::result_type>(seed_source),
+    rd_device(),
+    rd_device(),
+    rd_device(),
+    rd_device(),
+    rd_device(),
+    rd_device(),
+    rd_device(),
+    rd_device()
+};
 
 // Mersenne Twister engine, seeded once
-static std::mt19937 mt{seed};
+static std::mt19937 mt {seed};
 
 template <typename T>
     requires std::integral<T> || std::floating_point<T>
@@ -109,7 +113,7 @@ T randn(T min, T max) {
         // (behavior for max depends on library implementation but usually
         // inclusive for real)
         return dist(mt);
-}
+    }
 }
 
 // This function is a convenience overload for integral types
@@ -124,11 +128,11 @@ R randn(S min, T max) {
 
 #if (defined(_MSVC_LANG) && _MSVC_LANG >= 202302L) || (__cplusplus >= 202302L)
 // Define a concept that checks if a type is a scoped enum
-    template <typename T>
-    concept IsScopedEnum = std::is_scoped_enum_v<T>;
+template <typename T>
+concept IsScopedEnum = std::is_scoped_enum_v<T>;
 #else
-    template <typename T>
-    concept IsScopedEnum = std::is_enum_v<T> && !std::is_convertible_v<T, int>;
+template <typename T>
+concept IsScopedEnum = std::is_enum_v<T> && !std::is_convertible_v<T, int>;
 #endif
 
 // This function allows us to convert the enumerators of scoped enum
@@ -143,7 +147,7 @@ class Timer {
     using Clock  = std::chrono::steady_clock;
     using Second = std::chrono::duration<double, std::ratio<1>>;
 
-    std::chrono::time_point<Clock> m_beg{Clock::now()};
+    std::chrono::time_point<Clock> m_beg {Clock::now()};
 
    public:
     void reset() { m_beg = Clock::now(); }

@@ -33,18 +33,15 @@ float Greeter::getEnthusiasm() const { return enthusiasm_; }
 Greeter::Greeter() : date_provider_(createDateProvider()) {}
 
 // Constructor that takes a custom provider
-Greeter::Greeter(std::unique_ptr<IDateProvider> provider)
-    : date_provider_(std::move(provider)) {}
+Greeter::Greeter(std::unique_ptr<IDateProvider> provider) : date_provider_(std::move(provider)) {}
 
 Greeter::Greeter(std::string name) : name_(std::move(name)) {}
 
-std::string Greeter::greet_name() const {
-    return "Hello, " + name_ + "!";
-}
+std::string Greeter::greet_name() const { return "Hello, " + name_ + "!"; }
 
 std::string Greeter::simple_greet() const {
-    std::string greeting{"Hello from the Greeter class"};
-    int exclamations{static_cast<int>(enthusiasm_ * 3)};
+    std::string greeting {"Hello from the Greeter class"};
+    int         exclamations {static_cast<int>(enthusiasm_ * 3)};
     for (int i = 0; i < exclamations; ++i) {
         greeting += "!";
     }
@@ -52,7 +49,7 @@ std::string Greeter::simple_greet() const {
 }
 
 std::string Greeter::greet() const {
-    int day{date_provider_->getDayOfWeek()};
+    int         day {date_provider_->getDayOfWeek()};
     std::string day_str;
     switch (day) {
         // NOLINTBEGIN
@@ -65,7 +62,7 @@ std::string Greeter::greet() const {
         default:
             day_str = "Have a nice day!";
             break;
-        // NOLINTEND
+            // NOLINTEND
     }
     return day_str + " Hello from the Greeter class!";
 }

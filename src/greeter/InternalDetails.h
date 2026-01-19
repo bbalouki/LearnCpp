@@ -2,5 +2,5 @@
 #include <string>
 
 namespace InternalDetails {
-inline const std::string Name{"The modular Greeting Library"};
+inline const std::string Name {"The modular Greeting Library"};
 }
