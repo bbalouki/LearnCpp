@@ -78,10 +78,11 @@ jobs:
         run: ctest --test-dir $BUILD_DIR --output-on-failure --build-config ${{ matrix.build_type }}
 
       - name: Package
+        shell: bash
         run: cd $BUILD_DIR && cpack
 
       - name: Upload Package Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Greeter-Package-${{ runner.os }}-${{ matrix.build_type }}
-          path: build/Greeter-*-Development.zip
+          path: build/LEARNCPP-*-Development.zip
