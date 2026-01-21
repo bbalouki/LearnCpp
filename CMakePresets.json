@@ -97,15 +97,27 @@
     },
     {
       "name": "cross",
-      "inherits": ["_ninja", "_vcpkg", "_debug", "_mingw"],
-      "displayName": "(GCC/Clang) + vcpkg Cross-Platform Debug",
-      "description": "Build with Ninja in Debug mode using vcpkg as pkg manager."
+      "inherits": ["_ninja", "_vcpkg", "_debug"],
+      "displayName": "Cross-Platform Debug",
+      "description": "Debug build using Ninja and vcpkg. (Default Linux/MSVC)"
+    },
+    {
+      "name": "cross-mingw",
+      "inherits": ["cross", "_mingw"],
+      "displayName": "Windows MinGW Debug",
+      "description": "Debug build using Ninja and vcpkg with MinGW on Windows."
     },
     {
       "name": "cross-rel",
-      "inherits": ["_ninja", "_vcpkg", "_release", "_mingw"],
+      "inherits": ["_ninja", "_vcpkg", "_release"],
       "displayName": "(GCC/Clang) + vcpkg Cross-Platform Release",
       "description": "Optimized Release build with Ninja using vcpkg as pkg manager."
+    },
+    {
+      "name": "cross-mingw-rel",
+      "inherits": ["_ninja", "_vcpkg", "_mingw","_release"],
+      "displayName": "(GCC/Clang) Windows MinGW Release",
+      "description": "Optimized Release build using Ninja and vcpkg with MinGW on Windows."
     },
     {
       "name": "cross-conan",
@@ -121,15 +133,27 @@
     },
     {
       "name": "cross-cov",
-      "inherits": ["_ninja", "_vcpkg", "_coverage", "_mingw"],
+      "inherits": ["_ninja", "_vcpkg", "_coverage"],
       "displayName": "(GCC/Clang) + vcpkg Cross-Platform Coverage",
       "description": "Instrumented with Ninja for code coverage analysis, using vcpkg as pkg manager."
     },
     {
       "name": "cross-san",
-      "inherits": ["_ninja", "_vcpkg", "_sanitize", "_mingw"],
+      "inherits": ["_ninja", "_vcpkg", "_sanitize"],
       "displayName": "(GCC/Clang) + vcpkg Cross-Platform Sanitizers",
       "description": "Debug build with Ninja enabling sanitizers using vcpkg as pkg manager."
+    },
+    {
+      "name": "cross-cov-mingw",
+      "inherits": ["_ninja", "_vcpkg", "_mingw", "_coverage"],
+      "displayName": "(GCC/Clang) Windows MinGW Coverage",
+      "description": "Instrumented with Ninja for code coverage analysis, using vcpkg as pkg manager."
+    },
+    {
+      "name": "cross-san-mingw",
+      "inherits": ["_ninja", "_vcpkg", "_mingw", "_sanitize"],
+      "displayName": "(GCC/Clang) Windows MinGW Debug Sanitizers",
+      "description": "Instrumented build with Ninja enabling sanitizers using vcpkg as pkg manager."
     }
   ],
   "packagePresets": [
