@@ -1,40 +1,89 @@
 name: C++ CI
-
 on:
   push:
     branches: [ "main" ]
 
 jobs:
   build-and-test:
-    runs-on: ubuntu-latest
-
-    env: 
-      VCPKG_ROOT: ${{ github.workspace }}/vcpkg 
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        build_type: [Release, Debug]
+        cpp_standard: [20] # , 23
+    runs-on: ${{ matrix.os }}
+    env:
+      VCPKG_ROOT: ${{ github.workspace }}/vcpkg
+      BUILD_DIR: ${{ github.workspace }}/build
+      CMAKE_BUILD_PARALLEL_LEVEL: 4
 
     steps:
-    - name: Check out code
-      uses: actions/checkout@v4
-    
-    - name: Set up vcpkg
-      uses: lukka/run-vcpkg@v11
-    
-    - name: Install Protobuf
-      run: sudo apt install -y protobuf-compiler
-    
-    - name: Configure CMake
-      run: cmake --preset cross
+      - name: Checkout source
+        uses: actions/checkout@v4
 
-    - name: Build project
-      run: cmake --build build
-    
-    - name: Run tests
-      run: ctest --test-dir build
+      - name: Cache vcpkg
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ env.VCPKG_ROOT }}
+            ~/.cache/vcpkg
+          key: ${{ runner.os }}-vcpkg-${{ hashFiles('vcpkg.json') }}
+          restore-keys: |
+            ${{ runner.os }}-vcpkg-
 
-    - name: Package
-      run: cpack --preset dev-zip
+      - name: Set up vcpkg
+        uses: lukka/run-vcpkg@v11
 
-    - name: Upload Package Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: Greeter-Package-Linux
-        path: build/Greeter-*-Development.zip
+      - name: Cache CMake build
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.BUILD_DIR }}
+          key: ${{ runner.os }}-${{ matrix.build_type }}-cmake-${{ hashFiles('CMakeLists.txt', '**/CMakeLists.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.build_type }}-cmake-
+      
+      - name: Set VCPKG Triplet
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            echo "VCPKG_TARGET_TRIPLET=x64-windows" >> $GITHUB_ENV
+          elif [ "$RUNNER_OS" == "Linux" ]; then
+            echo "VCPKG_TARGET_TRIPLET=x64-linux" >> $GITHUB_ENV
+          else
+            if [ "$(uname -m)" == "arm64" ]; then
+              echo "VCPKG_TARGET_TRIPLET=arm64-osx" >> $GITHUB_ENV
+            else
+              echo "VCPKG_TARGET_TRIPLET=x64-osx" >> $GITHUB_ENV
+            fi
+          fi
+
+      - name: Configure CMake
+        shell: bash
+        run: |
+          cmake -S . -B $BUILD_DIR \
+            -DLEARNCPP_BUILD_BENCHMARKS=ON \
+            -DLEARNCPP_BUILD_EXAMPLES=ON \
+            -DLEARNCPP_BUILD_TESTS=ON \
+            -DLEARNCPP_APPLY_CLANG_TIDY_GLOBALY=ON \
+            -DLEARNCPP_APPLY_FORMATING=ON \
+            -DLEARNCPP_CXX_STANDARD=${{ matrix.cpp_standard }} \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake \
+            -DVCPKG_TARGET_TRIPLET=$VCPKG_TARGET_TRIPLET
+
+      - name: Build
+        shell: bash
+        run: cmake --build $BUILD_DIR --config ${{ matrix.build_type }}
+        
+      - name: Run tests
+        shell: bash
+        run: ctest --test-dir $BUILD_DIR --output-on-failure --build-config ${{ matrix.build_type }}
+
+      - name: Package
+        run: cpack --preset dev-zip
+
+      - name: Upload Package Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Greeter-Package-${{ matrix.os }}
+          path: build/Greeter-*-Development.zip

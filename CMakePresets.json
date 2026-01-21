@@ -102,7 +102,7 @@
       "description": "Debug build using Ninja and vcpkg. (Default Linux/MSVC)"
     },
     {
-      "name": "cross-mingw",
+      "name": "mingw",
       "inherits": ["cross", "_mingw"],
       "displayName": "Windows MinGW Debug",
       "description": "Debug build using Ninja and vcpkg with MinGW on Windows."
@@ -114,7 +114,7 @@
       "description": "Optimized Release build with Ninja using vcpkg as pkg manager."
     },
     {
-      "name": "cross-mingw-rel",
+      "name": "mingw-rel",
       "inherits": ["_ninja", "_vcpkg", "_mingw","_release"],
       "displayName": "(GCC/Clang) Windows MinGW Release",
       "description": "Optimized Release build using Ninja and vcpkg with MinGW on Windows."
@@ -144,13 +144,13 @@
       "description": "Debug build with Ninja enabling sanitizers using vcpkg as pkg manager."
     },
     {
-      "name": "cross-cov-mingw",
+      "name": "mingw-cov",
       "inherits": ["_ninja", "_vcpkg", "_mingw", "_coverage"],
       "displayName": "(GCC/Clang) Windows MinGW Coverage",
       "description": "Instrumented with Ninja for code coverage analysis, using vcpkg as pkg manager."
     },
     {
-      "name": "cross-san-mingw",
+      "name": "mingw-san",
       "inherits": ["_ninja", "_vcpkg", "_mingw", "_sanitize"],
       "displayName": "(GCC/Clang) Windows MinGW Debug Sanitizers",
       "description": "Instrumented build with Ninja enabling sanitizers using vcpkg as pkg manager."
@@ -159,7 +159,7 @@
   "packagePresets": [
     {
       "name": "default",
-      "configurePreset": "cross",
+      "configurePreset": "mingw",
       "description": "The Greeter Library",
       "vendorName": "StudyPlan.dev",
       "variables": {
