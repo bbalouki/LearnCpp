@@ -64,8 +64,6 @@ jobs:
             -DLEARNCPP_BUILD_BENCHMARKS=ON \
             -DLEARNCPP_BUILD_EXAMPLES=ON \
             -DLEARNCPP_BUILD_TESTS=ON \
-            -DLEARNCPP_APPLY_CLANG_TIDY_GLOBALY=ON \
-            -DLEARNCPP_APPLY_FORMATING=ON \
             -DLEARNCPP_CXX_STANDARD=${{ matrix.cpp_standard }} \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
             -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake \
@@ -80,10 +78,10 @@ jobs:
         run: ctest --test-dir $BUILD_DIR --output-on-failure --build-config ${{ matrix.build_type }}
 
       - name: Package
-        run: cpack --preset dev-zip
+        run: cd $BUILD_DIR && cpack
 
       - name: Upload Package Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Greeter-Package-${{ matrix.os }}
+          name: Greeter-Package-${{ runner.os }}-${{ matrix.build_type }}
           path: build/Greeter-*-Development.zip

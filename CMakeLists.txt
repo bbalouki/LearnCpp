@@ -47,6 +47,10 @@ if (${PROJECT_NAME}_BUILD_EXAMPLES)
 endif()
 
 set(CPACK_ARCHIVE_COMPONENT_INSTALL ON)
+set(CPACK_GENERATOR "ZIP") 
+set(CPACK_COMPONENTS_ALL "Development")
+set(CPACK_PACKAGE_VENDOR "StudyPlan.dev")
+
 include(CPack)
 cpack_add_component(Development
   DISPLAY_NAME "The Greeter Library"
