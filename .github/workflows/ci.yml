@@ -79,10 +79,10 @@ jobs:
 
       - name: Package
         shell: bash
-        run: cd $BUILD_DIR && cpack
+        run: cd $BUILD_DIR && cpack -C ${{ matrix.build_type }}
 
       - name: Upload Package Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Greeter-Package-${{ runner.os }}-${{ matrix.build_type }}
-          path: build/LEARNCPP-*-Development.zip
+          path: ${{ env.BUILD_DIR }}/*.zip
