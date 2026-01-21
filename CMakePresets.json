@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 6,
   "configurePresets": [
     {
       "name": "_base",
@@ -130,6 +130,26 @@
       "inherits": ["_ninja", "_vcpkg", "_sanitize", "_mingw"],
       "displayName": "(GCC/Clang) + vcpkg Cross-Platform Sanitizers",
       "description": "Debug build with Ninja enabling sanitizers using vcpkg as pkg manager."
+    }
+  ],
+  "packagePresets": [
+    {
+      "name": "default",
+      "configurePreset": "cross",
+      "description": "The Greeter Library",
+      "vendorName": "StudyPlan.dev",
+      "variables": {
+        "CPACK_PACKAGE_CONTACT": "support@studyplan.dev"
+      }
+    },
+    {
+      "name": "dev-zip",
+      "displayName": "Developer Archive (ZIP)",
+      "inherits": "default",
+      "generators": ["ZIP"],
+      "variables": {
+        "CPACK_COMPONENTS_ALL": "Development"
+      }
     }
   ]
 }

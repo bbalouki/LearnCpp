@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.25)
 
 file(READ "VERSION.txt" RAW_VERSION)
 string(STRIP "${RAW_VERSION}" APP_VERSION)
@@ -45,3 +45,10 @@ endif()
 if (${PROJECT_NAME}_BUILD_EXAMPLES)
     add_subdirectory(examples)
 endif()
+
+set(CPACK_ARCHIVE_COMPONENT_INSTALL ON)
+include(CPack)
+cpack_add_component(Development
+  DISPLAY_NAME "The Greeter Library"
+  DESCRIPTION "Compiled Library, Header, and CMake Files"
+)

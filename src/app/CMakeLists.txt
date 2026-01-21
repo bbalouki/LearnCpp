@@ -18,7 +18,7 @@ target_link_libraries(
     PRIVATE 
     Date
     DataModel
-    Greeter::Lib
+    GreeterLib
     spdlog::spdlog
     tabulate::tabulate
     argparse::argparse

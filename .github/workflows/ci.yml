@@ -4,28 +4,37 @@ on:
   pull_request:
     branches: [ "main" ]
 
-# jobs:
-#   build-and-test:
-#     runs-on: ubuntu-latest
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
 
-#     env: 
-#       VCPKG_ROOT: ${{ github.workspace }}/vcpkg 
+    env: 
+      VCPKG_ROOT: ${{ github.workspace }}/vcpkg 
 
-#     steps:
-#     - name: Check out code
-#       uses: actions/checkout@v4
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v4
     
-#     - name: Set up vcpkg
-#       uses: lukka/run-vcpkg@v11
+    - name: Set up vcpkg
+      uses: lukka/run-vcpkg@v11
     
-#     - name: Install Protobuf
-#       run: sudo apt install -y protobuf-compiler
+    - name: Install Protobuf
+      run: sudo apt install -y protobuf-compiler
     
-#     - name: Configure CMake
-#       run: cmake --preset default
+    - name: Configure CMake
+      run: cmake --preset cross
 
-#     - name: Build project
-#       run: cmake --build build
+    - name: Build project
+      run: cmake --build build
     
-#     - name: Run tests
-#       run: ctest --test-dir build
+    - name: Run tests
+      run: ctest --test-dir build
+
+    - name: Package
+      run: cpack --preset dev-zip
+
+    - name: Upload Package Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: Greeter-Package-Linux
+        path: build/Greeter-*-Development.zip

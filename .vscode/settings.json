@@ -5,5 +5,5 @@
   "cmake.configureOnOpen": false,
   "cmake.configureOnEdit": false,
   "cmake.automaticReconfigure": false,
-  "terminal.integrated.defaultProfile.windows": "PowerShell",
+  "terminal.integrated.defaultProfile.windows": "bash (UCRT64)",
 }
