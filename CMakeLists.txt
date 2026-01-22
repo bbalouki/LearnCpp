@@ -69,7 +69,7 @@ cpack_add_component(Development
 if (MSVC)
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
     set(CMAKE_EXE_LINKER_FLAGS "/INCREMENTAL:NO")
-    set(VCPKG_TARGET_TRIPLET "x64-windows-static")
+    #set(VCPKG_TARGET_TRIPLET "x64-windows-static")
 endif()
 
 cpack_add_component(Application
