@@ -5,7 +5,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "nix-debug-lunch",
+      "name": "mingw-debug-lunch",
       "type": "cppdbg",
       "request": "launch",
       "program": "${workspaceFolder}/build/LearnCpp.exe",
@@ -23,11 +23,11 @@
           "ignoreFailures": true
         }
       ],
-      "preLaunchTask": "GCC/Clang-Debug-Build"
+      "preLaunchTask": "GCC/Clang-MingW-Debug-Build"
     },
 
     {
-      "name": "nix-release-lunch",
+      "name": "mingw-release-lunch",
       "type": "cppdbg",
       "request": "launch",
       "program": "${workspaceFolder}/build/LearnCpp.exe",
@@ -45,7 +45,7 @@
           "ignoreFailures": true
         }
       ],
-      "preLaunchTask": "GCC/Clang-Release-Build"
+      "preLaunchTask": "GCC/Clang-MingW-Release-Build"
     },
 
     {

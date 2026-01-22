@@ -9,8 +9,8 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        build_type: [Debug] # Release
-        cpp_standard: [20] # 23
+        build_type: [Release] # Debug, 
+        cpp_standard: [20] # , 23
     runs-on: ${{ matrix.os }}
     env:
       VCPKG_ROOT: ${{ github.workspace }}/vcpkg
@@ -77,12 +77,27 @@ jobs:
         shell: bash
         run: ctest --test-dir $BUILD_DIR --output-on-failure --build-config ${{ matrix.build_type }}
 
-      - name: Package
+      - name: Package Development
         shell: bash
+        if: matrix.build_type == 'Release'
         run: cd $BUILD_DIR && cpack -C ${{ matrix.build_type }}
 
-      - name: Upload Package Artifact
+      - name: Upload Development Package Artifact
+        uses: actions/upload-artifact@v4
+        if: matrix.build_type == 'Release'
+        with:
+          name: Greeter-Package-${{ matrix.os }}-${{ matrix.build_type }}
+          path: ${{ env.BUILD_DIR }}/*.zip
+
+      - name: Package Application
+        shell: bash
+        if: matrix.os == 'windows-latest' && matrix.build_type == 'Release'
+        run: cd $BUILD_DIR && cpack -C ${{ matrix.build_type }}
+
+      - name: Upload Application Package Artifact
+        shell: bash
+        if: matrix.os == 'windows-latest' && matrix.build_type == 'Release'
         uses: actions/upload-artifact@v4
         with:
-          name: Greeter-Package-${{ runner.os }}-${{ matrix.build_type }}
-          path: ${{ env.BUILD_DIR }}/*.zip
+          name: Greeter-Installer-${{ matrix.os }}
+          path: ${{ env.BUILD_DIR }}/*.msi

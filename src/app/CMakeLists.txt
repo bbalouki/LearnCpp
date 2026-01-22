@@ -30,8 +30,10 @@ add_executable(GreeterApp main.cpp)
 target_link_libraries(GreeterApp PRIVATE GreeterAppLogic)
 
 
-install(TARGETS GreeterApp DESTINATION "${CMAKE_SOURCE_DIR}/bin")
-set_target_properties(GreeterApp PROPERTIES
-    INSTALL_RPATH "$ORIGIN"
+include(GNUInstallDirs)
+install(
+  TARGETS GreeterApp
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  COMPONENT Application
 )
 

@@ -1,10 +1,10 @@
 {
   "tasks": [
     {
-      "label": "GCC/Clang Debug Preset",
+      "label": "GCC/Clang MingW Debug Preset",
       "type": "shell",
       "command": "cmake",
-      "args": ["--preset", "cross"],
+      "args": ["--preset", "mingw"],
       "group": "build",
       "problemMatcher": ["$gcc"],
       "options": {
@@ -13,10 +13,10 @@
     },
 
     {
-      "label": "GCC/Clang Release Preset",
+      "label": "GCC/Clang MingW Release Preset",
       "type": "shell",
       "command": "cmake",
-      "args": ["--preset", "cross-rel"],
+      "args": ["--preset", "mingw-rel"],
       "group": "build",
       "problemMatcher": ["$gcc"],
       "options": {
@@ -25,7 +25,7 @@
     },
 
     {
-      "label": "GCC/Clang-Debug-Build",
+      "label": "GCC/Clang-MingW-Debug-Build",
       "type": "shell",
       "command": "cmake",
       "args": ["--build", "build"],
@@ -37,10 +37,10 @@
         "isDefault": true
       },
       "problemMatcher": ["$gcc"],
-      "dependsOn": "GCC/Clang Debug Preset"
+      "dependsOn": "GCC/Clang MingW Debug Preset"
     },
     {
-      "label": "GCC/Clang-Release-Build",
+      "label": "GCC/Clang-MingW-Release-Build",
       "type": "shell",
       "command": "cmake",
       "args": ["--build", "build"],
@@ -52,7 +52,7 @@
         "isDefault": true
       },
       "problemMatcher": ["$gcc"],
-      "dependsOn": "GCC/Clang Release Preset"
+      "dependsOn": "GCC/Clang MingW Release Preset"
     },
 
 

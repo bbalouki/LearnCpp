@@ -46,13 +46,33 @@ if (${PROJECT_NAME}_BUILD_EXAMPLES)
     add_subdirectory(examples)
 endif()
 
-set(CPACK_ARCHIVE_COMPONENT_INSTALL ON)
-set(CPACK_GENERATOR "ZIP") 
-set(CPACK_COMPONENTS_ALL "Development")
+set(BUILD_SHARED_LIBS OFF)
+set(CPACK_WIX_VERSION 4)
 set(CPACK_PACKAGE_VENDOR "StudyPlan.dev")
+set(CPACK_ARCHIVE_COMPONENT_INSTALL ON)
+set(CPACK_WIX_UPGRADE_GUID "9F193C51-0E82-4E49-96DE-07E2DAC59100")
+
+if (MSVC)
+    set(CPACK_GENERATOR "WIX") 
+    set(CPACK_COMPONENTS_ALL "Application")
+else()
+    set(CPACK_GENERATOR "ZIP") 
+    set(CPACK_COMPONENTS_ALL "Development")
+endif()
 
 include(CPack)
 cpack_add_component(Development
   DISPLAY_NAME "The Greeter Library"
   DESCRIPTION "Compiled Library, Header, and CMake Files"
+)
+
+if (MSVC)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
+    set(CMAKE_EXE_LINKER_FLAGS "/INCREMENTAL:NO")
+    set(VCPKG_TARGET_TRIPLET "x64-windows-static")
+endif()
+
+cpack_add_component(Application
+  DISPLAY_NAME "The Greeter Application"
+  DESCRIPTION "An application that says hello to the user"
 )
