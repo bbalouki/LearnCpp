@@ -37,3 +37,11 @@ install(
   COMPONENT Application
 )
 
+install(
+  TARGETS GreeterApp
+  RUNTIME_DEPENDENCIES
+  PRE_INCLUDE_REGEXES ".*spdlog.*" ".*tabulate.*" ".*argparse.*"
+  PRE_EXCLUDE_REGEXES ".*"
+  DESTINATION ${CMAKE_INSTALL_BINDIR}
+  COMPONENT Application
+)

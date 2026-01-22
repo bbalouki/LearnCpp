@@ -46,7 +46,7 @@ if (${PROJECT_NAME}_BUILD_EXAMPLES)
     add_subdirectory(examples)
 endif()
 
-set(BUILD_SHARED_LIBS OFF)
+set(BUILD_SHARED_LIBS ON)
 set(CPACK_WIX_VERSION 4)
 set(CPACK_PACKAGE_VENDOR "StudyPlan.dev")
 set(CPACK_ARCHIVE_COMPONENT_INSTALL ON)

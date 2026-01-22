@@ -74,6 +74,7 @@ install(
         COMPONENT Development
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
         COMPONENT Development
+        COMPONENT Application
 )
 
 # Step 4: Specifying Header Destinations

@@ -77,6 +77,13 @@ jobs:
         shell: bash
         run: ctest --test-dir $BUILD_DIR --output-on-failure --build-config ${{ matrix.build_type }}
 
+      - name: Install WiX v4
+        if: matrix.os == 'windows-latest'
+        shell: bash
+        run: |
+          dotnet tool install --global wix
+          wix extension add --global WixToolset.UI.wixext
+          
       - name: Package Development
         shell: bash
         if: matrix.build_type == 'Release'
