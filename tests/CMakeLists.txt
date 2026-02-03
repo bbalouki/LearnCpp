@@ -34,4 +34,6 @@ include(GoogleTest)
 gtest_discover_tests(
   GreeterTests
   PROPERTIES LABELS "application"
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+  DISCOVERY_MODE PRE_TEST
 )

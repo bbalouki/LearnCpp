@@ -13,6 +13,7 @@ vcpkg x-update-baseline --add-initial-baseline
 ## CONAN
 pip install conan
 pacman -S mingw-w64-ucrt-x86_64-python-conan
+pacman -S mingw-w64-clang-x86_64-python-conan
 
 conan profile detect --name gcc-debug # create new profile
 conan install . --output-folder=build --build=missing --profile gcc-debug

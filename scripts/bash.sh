@@ -93,7 +93,7 @@ function build() {
         return $configure_status
     fi
 
-    cmake --build --preset "$preset"
+    cmake --build build
 
     local build_status=$?
     if [ $build_status -eq 0 ]; then
