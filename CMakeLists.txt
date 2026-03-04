@@ -5,15 +5,16 @@ string(STRIP "${RAW_VERSION}" APP_VERSION)
 
 project(LEARNCPP VERSION ${APP_VERSION})
 
+set(FETCHCONTENT_BASE_DIR "${CMAKE_SOURCE_DIR}/.cache/_deps")
 include(${CMAKE_SOURCE_DIR}/cmake/Helpers.cmake)
 include(${CMAKE_SOURCE_DIR}/cmake/Versions.cmake)
 
 if(${PROJECT_NAME}_ADD_COVERAGE_ANALYSIS)
-    add_coverage_analysis()
+    add_coverage_analysis(${CMAKE_SOURCE_DIR})
 endif()
 
 if(${PROJECT_NAME}_APPLY_FORMATING)
-    apply_formating(${PROJECT_NAME}_USE_PER_FILE_FORMATTING)
+    apply_formating(${PROJECT_NAME}_USE_PER_FILE_FORMATTING ${CMAKE_SOURCE_DIR})
 endif()
 
 if(${PROJECT_NAME}_APPLY_CLANG_TIDY_GLOBALY)

@@ -1,7 +1,6 @@
 find_package(GTest CONFIG QUIET)
 
 if(NOT GTest_FOUND)
-    set(FETCHCONTENT_BASE_DIR "${CMAKE_SOURCE_DIR}/.cache/_deps")
     include(FetchContent)
     FetchContent_Declare(
         GTest

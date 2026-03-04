@@ -55,7 +55,6 @@
       "dependsOn": "GCC/Clang MingW Release Preset"
     },
 
-
     {
       "label": "MSVC Configure Preset",
       "type": "shell",
@@ -83,6 +82,48 @@
       "group": "build",
       "problemMatcher": ["$msCompile"],
       "dependsOn": "MSVC Configure Preset"
+    },
+    {
+      "label": "Cross-Platform Debug Preset",
+      "type": "shell",
+      "command": "cmake",
+      "args": ["--preset", "cross"],
+      "group": "build",
+      "problemMatcher": ["$gcc"],
+      "detail": "Run CMake configuration for Linux/macOS Debug"
+    },
+    {
+      "label": "Cross-Platform Release Preset",
+      "type": "shell",
+      "command": "cmake",
+      "args": ["--preset", "cross-rel"],
+      "group": "build",
+      "problemMatcher": ["$gcc"],
+      "detail": "Run CMake configuration for Linux/macOS Release"
+    },
+    {
+      "label": "Cross-Platform-Debug-Build",
+      "type": "shell",
+      "command": "cmake",
+      "args": ["--build", "build"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": "build",
+      "problemMatcher": ["$gcc"],
+      "dependsOn": "Cross-Platform Debug Preset"
+    },
+    {
+      "label": "Cross-Platform-Release-Build",
+      "type": "shell",
+      "command": "cmake",
+      "args": ["--build", "build"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": "build",
+      "problemMatcher": ["$gcc"],
+      "dependsOn": "Cross-Platform Release Preset"
     }
   ],
   "version": "2.0.0"

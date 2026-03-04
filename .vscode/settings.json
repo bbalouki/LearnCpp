@@ -6,4 +6,6 @@
   "cmake.configureOnEdit": false,
   "cmake.automaticReconfigure": false,
   "terminal.integrated.defaultProfile.windows": "bash (UCRT64)",
+  "terminal.integrated.defaultProfile.linux": "bash",
+  "terminal.integrated.defaultProfile.osx": "zsh"
 }

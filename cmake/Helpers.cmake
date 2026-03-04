@@ -98,7 +98,7 @@ function(apply_clang_tidy_globaly)
 endfunction()
 
 ####################################################
-function(add_coverage_analysis)
+function(add_coverage_analysis path)
   if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
       message(STATUS "Code coverage enabled")
       if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -123,8 +123,8 @@ function(add_coverage_analysis)
     add_custom_target(
       coverage
       COMMAND ${GCOVR_EXE}
-        -r "${CMAKE_SOURCE_DIR}"
-        --filter "${CMAKE_SOURCE_DIR}/src/"
+        -r "${src_path}"
+        --filter "${src_path}/src/"
         --html "coverage.html"
       COMMENT "Generating code coverage report..."
     )
@@ -152,19 +152,20 @@ function(build_documenation)
             COMMENT "Generating docs with Doxygen ..."
         )
         message(STATUS "Add 'docs' target")
+        message(STATUS "To build the documenation, run: cmake --build . --target docs")
     endif()
 endfunction()
 
 #####################################################
-function(apply_formating USE_PER_FILE_LOGIC)
+function(apply_formating USE_PER_FILE_LOGIC PATH)
     find_program(CLANG_FORMAT_EXE clang-format)
 
     if (NOT CLANG_FORMAT_EXE)
         return()
     endif()
 
-    file(GLOB_RECURSE SOURCES "${CMAKE_SOURCE_DIR}/*.cpp")
-    file(GLOB_RECURSE HEADERS "${CMAKE_SOURCE_DIR}/*.h" "${CMAKE_SOURCE_DIR}/*.hpp")
+    file(GLOB_RECURSE SOURCES "${PATH}/*.cpp")
+    file(GLOB_RECURSE HEADERS "${PATH}/*.h" "${PATH}/*.hpp")
     list(APPEND ALL_FILES ${SOURCES} ${HEADERS})
 
     if(NOT ALL_FILES)
