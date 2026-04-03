@@ -7,5 +7,33 @@
   "cmake.automaticReconfigure": false,
   "terminal.integrated.defaultProfile.windows": "bash (UCRT64)",
   "terminal.integrated.defaultProfile.linux": "bash",
-  "terminal.integrated.defaultProfile.osx": "zsh"
+  "terminal.integrated.defaultProfile.osx": "zsh",
+  "terminal.integrated.profiles.windows": {
+    "PowerShell": {
+      "source": "PowerShell",
+      "icon": "terminal-powershell"
+    },
+    "Git Bash": {
+      "source": "Git Bash",
+      "icon": "terminal-bash"
+    },
+    "bash (UCRT64)": {
+      "path": "C:\\msys64\\usr\\bin\\bash.exe",
+      "icon": "terminal-bash",
+      "args": ["--login", "-i"],
+      "env": {
+        "CHERE_INVOKING": "1",
+        "MSYSTEM": "UCRT64"
+      }
+    },
+    "bash (CLANG64)": {
+      "path": "C:\\msys64\\usr\\bin\\bash.exe",
+      "icon": "terminal-bash",
+      "args": ["--login", "-i"],
+      "env": {
+        "CHERE_INVOKING": "1",
+        "MSYSTEM": "CLANG64"
+      }
+    }
+  }
 }
