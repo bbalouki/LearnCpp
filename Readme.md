@@ -15,7 +15,7 @@
 
 Welcome, traveler, to the **LEARNCPP** repository and guidebook. 
 
-If you have ever stared blankly at a screen, feeling utterly overwhelmed by the sheer complexity of modern C++ ecosystems—the intricate dance of compilers, build systems, dependency managers, and testing frameworks—take a deep breath. You are exactly where you need to be.
+If you have ever stared blankly at a screen, feeling utterly overwhelmed by the sheer complexity of modern C++ ecosystems, the intricate dance of compilers, build systems, dependency managers, and testing frameworks, take a deep breath. You are exactly where you need to be.
 
 Historically, learning C++ meant writing a simple `main.cpp` file and compiling it from the command line. But the world has evolved. Today, C++ is the invisible engine powering our modern world: from the high-frequency trading platforms handling billions of dollars, to the game engines rendering photorealistic worlds, to the autonomous vehicles navigating our streets. 
 
@@ -42,7 +42,7 @@ This project is explicitly designed as an **interactive learning laboratory**. I
 
 ## CHAPTER 1: The Philosophy of Modern Systems
 
-The primary goal of this project is to bridge the massive canyon between "writing a single `.cpp` file" and "building a professional, scalable software product." Most traditional tutorials focus heavily on syntax—how to write loops, instantiate pointers, and define classes. While important, syntax is only the tip of the iceberg. Here, we focus on the **entire ecosystem** that makes C++ development possible at scale.
+The primary goal of this project is to bridge the massive canyon between "writing a single `.cpp` file" and "building a professional, scalable software product." Most traditional tutorials focus heavily on syntax, how to write loops, instantiate pointers, and define classes. While important, syntax is only the tip of the iceberg. Here, we focus on the **entire ecosystem** that makes C++ development possible at scale.
 
 ### Why This Project Exists
 In the real world, writing C++ involves significantly more than simply invoking a compiler. It requires orchestrating a symphony of tools:
@@ -59,7 +59,7 @@ By reading this book and actively working through this repository, you will gain
 4.  **Test-Driven Mentality**: Structuring testable code through the use of **Interfaces** and **Mocking** frameworks like Google Test.
 5.  **Performance Analysis**: Replacing guesswork with science by measuring code speed objectively via **Google Benchmark**.
 6.  **Code Quality Automation**: Securing your codebase with **Clang-Format**, **Clang-Tidy**, and deep **Static Analysis**.
-7.  **Data Serialization**: Implementing **Protocol Buffers (Protobuf)** to handle complex structured data—a mandatory standard in distributed systems and microservices architectures.
+7.  **Data Serialization**: Implementing **Protocol Buffers (Protobuf)** to handle complex structured data, a mandatory standard in distributed systems and microservices architectures.
 
 ---
 
@@ -108,7 +108,7 @@ MSYS2 provides an incredibly powerful, Unix-like terminal environment directly o
     - Within your MSYS2 terminal, navigate to your root user directory: `cd ~`
     - Clone the repository: `git clone https://github.com/microsoft/vcpkg.git`
     - Bootstrap the executable: `./vcpkg/bootstrap-vcpkg.sh`
-    *(Note: The default path hardcoded in our VS Code configs is `/home/{{username}}/vcpkg`—you must update this text to reflect your actual username!)*
+    *(Note: The default path hardcoded in our VS Code configs is `/home/{{username}}/vcpkg`, you must update this text to reflect your actual username!)*
 
 ### Path B: Windows via MSVC (The "Native" Windows Way)
 This path is ideal if your destiny lies in Windows-only desktop development or enterprise environments heavily invested in Microsoft's official Visual Studio compiler (MSVC).
@@ -327,7 +327,7 @@ If you learned C++ a decade ago, you might be accustomed to a language that feel
 
 ## CHAPTER 11: Your First Steps in the Lab (Exercises)
 
-Reading a book about swimming will not keep you from drowning. You must get in the water. Once your environment is successfully configured, do not just stare passively at the syntax—**break it, fix it, and interact with it!**
+Reading a book about swimming will not keep you from drowning. You must get in the water. Once your environment is successfully configured, do not just stare passively at the syntax, **break it, fix it, and interact with it!**
 
 ### Exercise 1: The "Hello World" Mutagen
 1.  Navigate into the implementation folder and open `src/greeter/Greeter.cpp`.
@@ -368,7 +368,7 @@ The ecosystem of C++ is undeniably vast, possessing a sheer depth of power that 
 
 By working through this book and the LEARNCPP repository, you are doing far more than memorizing the syntax of a programming language. You are ingraining the rigorous **engineering discipline** required to architect, manage, and scale world-class software.
 
-There will be moments of frustration. You will encounter cryptic linker errors that look like ancient hieroglyphics. When this happens, do not become discouraged. Breathe. Read the terminal output carefully—the error messages are not your enemies; they are your greatest teachers. Remember that every single master developer currently working at the pinnacle of the tech industry was once a beginner who simply refused to surrender to a compilation error.
+There will be moments of frustration. You will encounter cryptic linker errors that look like ancient hieroglyphics. When this happens, do not become discouraged. Breathe. Read the terminal output carefully, the error messages are not your enemies; they are your greatest teachers. Remember that every single master developer currently working at the pinnacle of the tech industry was once a beginner who simply refused to surrender to a compilation error.
 
 The lab is open. The tools are yours.
 
