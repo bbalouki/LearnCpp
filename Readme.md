@@ -251,6 +251,24 @@ When you invoke CMake in conjunction with the vcpkg "toolchain file" (a connecti
 
 Open the `vcpkg.json` file at the root of this project. You will see an elegant, human-readable list of dependencies. This is how software is constructed in the 21st century.
 
+### The Artisan's Custom Gallery: Manual Libraries (`libs/`)
+Sometimes, a library you need might not be available in the official vcpkg registry, or you might need a specific, modified version. In this project, we handle these cases using **Overlay Ports**.
+
+Our custom libraries live in the `libs/` directory (e.g., `libs/imgui/`). Each library requires three essential blueprints:
+1.  **`vcpkg.json`**: The manifest file defining the library's name, version, and its own dependencies.
+2.  **`portfile.cmake`**: The script that instructs vcpkg how to download (usually from GitHub), configure, and install the library.
+3.  **`usage`**: A simple text file that tells future developers exactly how to include this library in their `CMakeLists.txt`.
+
+#### How to Add Your Own Library:
+1.  **Create the Directory**: `mkdir libs/your-library-name`
+2.  **Define the Manifest**: Create a `vcpkg.json` inside that folder.
+3.  **Write the Portfile**: Create `portfile.cmake`. Use the `vcpkg_from_github` function to point to the source code.
+    - *Tip*: Set the `SHA512` to `0` initially. Run a build, and vcpkg will fail but provide you with the correct hash to copy-paste.
+4.  **Add Usage Instructions**: Create the `usage` file so others know the `find_package` and `target_link_libraries` commands.
+5.  **Register the Overlay**: Ensure the `libs` directory is listed in the `overlay-ports` array within `vcpkg-configuration.json` at the project root. (We have already pre-configured this for you!)
+
+By following this pattern, you can treat any third-party code as a first-class citizen in your modern C++ ecosystem.
+
 ---
 
 ## CHAPTER 6: The Assembly Line (The Build Process)

@@ -4,7 +4,7 @@
       "name": "UCRT64",
       "includePath": [
         "${workspaceFolder}/**",
-        "C:/msys64/home/{{username}}/vcpkg/installed/x64-mingw-static/include/**"
+        "C:/msys64/home/Bertin/vcpkg/installed/x64-mingw-static/include/**"
       ],
       "defines": ["_DEBUG", "UNICODE", "_UNICODE"],
       "windowsSdkVersion": "10.0.22621.0",
@@ -18,7 +18,7 @@
       "name": "CLANG64",
       "includePath": [
         "${workspaceFolder}/**",
-        "C:/msys64/home/{{username}}/vcpkg/installed/x64-mingw-static/include/**"
+        "C:/msys64/home/Bertin/vcpkg/installed/x64-mingw-static/include/**"
       ],
       "defines": ["_DEBUG", "UNICODE", "_UNICODE"],
       "windowsSdkVersion": "10.0.22621.0",
