@@ -62,14 +62,16 @@ class Greeter {
     // to be injected for testing/flexibility
     explicit Greeter(std::unique_ptr<IDateProvider> provider);
     explicit Greeter(std::string name);
-    void        setEnthusiasm(float level);
-    float       getEnthusiasm() const;
-    std::string greet() const;
-    std::string greet_name() const;
-    std::string simple_greet() const;
+    void                      setEnthusiasm(float level);
+    [[nodiscard]] float       getEnthusiasm() const;
+    [[nodiscard]] std::string greet() const;
+    [[nodiscard]] std::string greet_name() const;
+    [[nodiscard]] std::string simple_greet() const;
 
    private:
-    std::string                    name_ {"User"};
-    float                          enthusiasm_ {0.5F};
-    std::unique_ptr<IDateProvider> date_provider_;
+    static constexpr float            default_enthusiasm {0.5F};
+    static constexpr std::string_view default_name {"User"};
+    std::string                       name_ {default_name};
+    float                             enthusiasm_ {default_enthusiasm};
+    std::unique_ptr<IDateProvider>    date_provider_;
 };

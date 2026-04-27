@@ -1,13 +1,15 @@
 #pragma once
 
+#include <array>
 #include <chrono>
 #include <concepts>
+#include <cstdint>
 #include <iostream>
 #include <limits>
 #include <random>
 
 namespace Utils {
-long getCppStandard() {
+int32_t getCppStandard() {
     // Visual Studio is non-conforming in support for __cplusplus
     // (unless you set a specific compiler flag, which you probably haven't)
     // In Visual Studio 2015 or newer we can use _MSVC_LANG instead
@@ -28,14 +30,14 @@ long getCppStandard() {
 // using Freely redistributable, courtesy of
 // [learncpp.com](https://www.learncpp.com/cpp-tutorial/what-language-standard-is-my-compiler-using/)
 void printCppStandard() {
-    long             standard     = getCppStandard();
-    static const int numStandards = 7;
+    int32_t              standard     = getCppStandard();
+    static constexpr int numStandards = 7;
     // The C++26 stdCode is a placeholder since the exact code won't be
     // determined until the standard is finalized
-    static const long stdCode[numStandards] = {
+    static constexpr std::array<int32_t, numStandards> stdCode = {
         199711L, 201103L, 201402L, 201703L, 202002L, 202302L, 202612L
     };
-    static const char* stdName[numStandards] = {
+    static constexpr std::array<const char*, numStandards> stdName = {
         "Pre-C++11", "C++11", "C++14", "C++17", "C++20", "C++23", "C++26"
     };
 
@@ -44,11 +46,11 @@ void printCppStandard() {
         return;
     }
 
-    for (int i = 0; i < numStandards; ++i) {
+    for (std::size_t i {0U}; i < numStandards; ++i) {
         // If the reported version is one of the finalized standard codes
         // then we know exactly what version the compiler is running
-        if (standard == stdCode[i]) {
-            std::cout << "Your compiler is using " << stdName[i] << " (language standard code "
+        if (standard == stdCode.at(i)) {
+            std::cout << "Your compiler is using " << stdName.at(i) << " (language standard code "
                       << standard << "L)\n";
             break;
         }
@@ -56,8 +58,8 @@ void printCppStandard() {
         // If the reported version is between two finalized standard codes,
         // this must be a preview / experimental support for the next upcoming
         // version.
-        if (standard < stdCode[i]) {
-            std::cout << "Your compiler is using a preview/pre-release of " << stdName[i]
+        if (standard < stdCode.at(i)) {
+            std::cout << "Your compiler is using a preview/pre-release of " << stdName.at(i)
                       << " (language standard code " << standard << "L)\n";
             break;
         }
@@ -72,27 +74,30 @@ void handleBadInputs() {
 }  // namespace Utils
 
 namespace Random {
-static std::random_device rd_device;
 using Clock = std::chrono::steady_clock;
 using Seed  = std::seed_seq;
 
-// Seed source (can be slow, so call once)
-// Create a seed sequence from the random device
-auto        seed_source = Clock::now().time_since_epoch().count();
-static Seed seed {
-    static_cast<Seed::result_type>(seed_source),
-    rd_device(),
-    rd_device(),
-    rd_device(),
-    rd_device(),
-    rd_device(),
-    rd_device(),
-    rd_device(),
-    rd_device()
-};
+inline std::mt19937& get_engine() {
+    // Seed source (can be slow, so call once)
+    // Create a seed sequence from the random device
+    thread_local std::random_device rd_device;
+    thread_local const auto         seed_source = Clock::now().time_since_epoch().count();
+    thread_local Seed               seed {
+        static_cast<Seed::result_type>(seed_source),
+        rd_device(),
+        rd_device(),
+        rd_device(),
+        rd_device(),
+        rd_device(),
+        rd_device(),
+        rd_device(),
+        rd_device()
+    };
 
-// Mersenne Twister engine, seeded once
-static std::mt19937 mt {seed};
+    // Mersenne Twister engine, seeded once per thread
+    thread_local std::mt19937 mt_rng {seed};
+    return mt_rng;
+}
 
 template <typename T>
     requires std::integral<T> || std::floating_point<T>
@@ -105,14 +110,14 @@ T randn(T min, T max) {
         // For integral types, use uniform_int_distribution
         std::uniform_int_distribution<T> dist(min, max);
         // Generate a random integer in the range [min, max]
-        return dist(mt);
+        return dist(get_engine());
     } else if constexpr (std::floating_point<T>) {
         // For floating-point types, use uniform_real_distribution
         std::uniform_real_distribution<T> dist(min, max);
         // Generate a random real number in the range [min, max) or [min, max]
         // (behavior for max depends on library implementation but usually
         // inclusive for real)
-        return dist(mt);
+        return dist(get_engine());
     }
 }
 
@@ -138,8 +143,8 @@ concept IsScopedEnum = std::is_enum_v<T> && !std::is_convertible_v<T, int>;
 // This function allows us to convert the enumerators of scoped enum
 // classes to integral values using unary operator+.
 template <IsScopedEnum EnumClass>
-constexpr auto operator+(EnumClass a) noexcept {
-    return static_cast<std::underlying_type_t<EnumClass>>(a);
+constexpr auto operator+(EnumClass cls) noexcept {
+    return static_cast<std::underlying_type_t<EnumClass>>(cls);
 }
 
 class Timer {
@@ -152,7 +157,7 @@ class Timer {
    public:
     void reset() { m_beg = Clock::now(); }
 
-    double elapsed() const {
+    [[nodiscard]] double elapsed() const {
         return std::chrono::duration_cast<Second>(Clock::now() - m_beg).count();
     }
 };

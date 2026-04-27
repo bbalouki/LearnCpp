@@ -5,6 +5,17 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "CodeLLDB: CMake Target (All Compilers)",
+      "type": "lldb",
+      "request": "launch",
+      "program": "${command:cmake.launchTargetPath}",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "stopOnEntry": false,
+      "console": "integratedTerminal"
+    },
+
+    {
       "name": "mingw-debug-lunch",
       "type": "cppdbg",
       "request": "launch",

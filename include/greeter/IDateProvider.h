@@ -1,13 +1,16 @@
 #pragma once
 #include <memory>
 
-// Abstract interface for a date provider
 class IDateProvider {
    public:
-    virtual ~IDateProvider() = default;
-    // 0=Sun, 1=Mon, ...
-    virtual int getDayOfWeek() const = 0;
+    // C++23 standard way to disable copying/moving for an abstract base class
+    IDateProvider()                                = default;
+    IDateProvider(const IDateProvider&)            = delete;
+    IDateProvider& operator=(const IDateProvider&) = delete;
+    IDateProvider(IDateProvider&&)                 = delete;
+    IDateProvider& operator=(IDateProvider&&)      = delete;
+    virtual ~IDateProvider()                       = default;
+    [[nodiscard]] virtual int getDayOfWeek() const = 0;
 };
 
-// Factory function to create the real provider
 std::unique_ptr<IDateProvider> createDateProvider();

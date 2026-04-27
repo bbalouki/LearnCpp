@@ -1,4 +1,17 @@
 {
+  "clangd.arguments": [
+    "--background-index",
+    "--compile-commands-dir=${workspaceFolder}/build",
+    "--clang-tidy",
+    "--pretty",
+    "--log=verbose",
+    "--query-driver=**",
+    "--header-insertion=iwyu",
+    "--completion-style=detailed",
+    "--function-arg-placeholders",
+    "--fallback-style=VisualStudio"
+  ],
+  //"C_Cpp.intelliSenseEngine": "disabled",
   "files.insertFinalNewline": true,
   "notebook.insertFinalNewline": true,
   "C_Cpp.default.cppStandard": "c++23",

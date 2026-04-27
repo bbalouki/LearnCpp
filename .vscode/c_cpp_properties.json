@@ -32,7 +32,7 @@
       "name": "Win32",
       "includePath": [
         "${workspaceFolder}/**",
-         "C:/DEV/vcpkg/installed/x64-windows/include/**"
+        "C:/DEV/vcpkg/installed/x64-windows/include/**"
       ],
       "defines": ["_DEBUG", "UNICODE", "_UNICODE"],
       "windowsSdkVersion": "10.0.22621.0",

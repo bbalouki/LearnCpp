@@ -1,0 +1,7 @@
+CompileFlags:
+  Add: 
+    - "-std=c++23"
+Diagnostics:
+  ClangTidy:
+    Add: [modernize*, readability*, cppcoreguidelines*, performance*]
+    Remove: [modernize-use-trailing-return-type]

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <iostream>
 #include <string_view>
 #include <vector>
@@ -14,7 +15,7 @@ constexpr int wrong_guesses_allowed {6};
 
 namespace WordList {
 using svVec = std::vector<std::string_view>;
-svVec words {
+inline const svVec words {
     "mystery",
     "broccoli",
     "account",
@@ -30,25 +31,19 @@ std::string_view getRandomWord() { return words[Random::randn<size_t>(0, words.s
 
 class Session {
    public:
-    std::string_view getWord() const { return m_word; }
-    int              wrongGuessesLeft() const { return m_wrong_guesses_left; }
-    void             removeGuess() { --m_wrong_guesses_left; }
-    bool             isLetterGuessed(char c) const { return m_letter_guessed[toIndex(c)]; }
-    void             setLetterGuessed(char c) { m_letter_guessed[toIndex(c)] = true; }
+    [[nodiscard]] std::string_view getWord() const { return m_word; }
+    [[nodiscard]] int              wrongGuessesLeft() const { return m_wrong_guesses_left; }
+    void                           removeGuess() { --m_wrong_guesses_left; }
+    [[nodiscard]] bool             isLetterGuessed(char letter) const {
+        return m_letter_guessed[toIndex(letter)];
+    }
+    void setLetterGuessed(char letter) { m_letter_guessed[toIndex(letter)] = true; }
 
-    bool isLetterInWord(char c) const {
-        for (auto ch : m_word) {
-            if (ch == c)
-                return true;
-        }
-        return false;
+    [[nodiscard]] bool isLetterInWord(char letter) const {
+        return std::ranges::any_of(m_word, [letter](char chr) { return chr == letter; });
     }
     bool won() {
-        for (auto c : m_word) {
-            if (!isLetterGuessed(c))
-                return false;
-        }
-        return true;
+        return std::ranges::all_of(m_word, [this](char letter) { return isLetterGuessed(letter); });
     }
 
    private:
@@ -56,38 +51,45 @@ class Session {
     int               m_wrong_guesses_left {Settings::wrong_guesses_allowed};
     std::vector<bool> m_letter_guessed {std::vector<bool>(26)};
 
-    // convert a letter into an array index via (letter % 32)-1.
+    // convert a letter into an array index via (letter % ascii_modulo)-1.
     // This works with both lower case and upper case letters.
-    size_t toIndex(char c) const { return static_cast<size_t>((c % 32) - 1); }
+    static size_t toIndex(char letter) {
+        constexpr int ascii_modulo = 32;
+        return static_cast<size_t>((letter % ascii_modulo) - 1);
+    }
 };
-void draw(const Session& s) {
+void draw(const Session& session) {
     std::cout << '\n';
 
     std::cout << "The word: ";
-    for (auto c : s.getWord()) {
-        if (s.isLetterGuessed(c))
-            std::cout << c;
-        else
+    for (auto letter : session.getWord()) {
+        if (session.isLetterGuessed(letter)) {
+            std::cout << letter;
+        } else {
             std::cout << '_';
+        }
     }
     std::cout << "  Wrong guesses: ";
-    for (int i = 0; i < s.wrongGuessesLeft(); ++i) std::cout << '+';
+    for (int i = 0; i < session.wrongGuessesLeft(); ++i) {
+        std::cout << '+';
+    }
 
-    for (char c = 'a'; c <= 'z'; ++c) {
-        if (s.isLetterGuessed(c) && !s.isLetterInWord(c))
-            std::cout << c;
+    for (char letter = 'a'; letter <= 'z'; ++letter) {
+        if (session.isLetterGuessed(letter) && !session.isLetterInWord(letter)) {
+            std::cout << letter;
+        }
     }
 
     std::cout << '\n';
 }
 
-char getGuess(const Session& s) {
+char getGuess(const Session& session) {
     while (true) {
-        const char* err_msg = "That wasn't a vilid input. Try again.\n";
+        const char* err_msg = "That wasn't a valid input. Try again.\n";
 
         std::cout << "Enter your next letter: ";
-        char c {};
-        std::cin >> c;
+        char letter {};
+        std::cin >> letter;
         // If user did something bad, try again
         if (!std::cin) {
             // Fix it
@@ -99,45 +101,48 @@ char getGuess(const Session& s) {
         Utils::handleBadInputs();
 
         // If the user entered an invalid char, try again
-        if (c < 'a' || c > 'z') {
+        if (letter < 'a' || letter > 'z') {
             std::cout << err_msg;
             continue;
         }
         // If the letter was already guessed, try again
-        if (s.isLetterGuessed(c)) {
-            std::cout << "You already guesses that. Try again.\n";
+        if (session.isLetterGuessed(letter)) {
+            std::cout << "You already guessed that. Try again.\n";
             continue;
         }
-        return c;
+        return letter;
     }
 }
 
-void handleGuesses(Session& s, char c) {
-    s.setLetterGuessed(c);
-    if (s.isLetterInWord(c)) {
-        std::cout << "Yes, '" << c << "' is in the word!\n";
+void handleGuesses(Session& session, char letter) {
+    session.setLetterGuessed(letter);
+    if (session.isLetterInWord(letter)) {
+        std::cout << "Yes, '" << letter << "' is in the word!\n";
         return;
     }
-    std::cout << "No, '" << c << "' is not in the word!\n";
-    s.removeGuess();
+    std::cout << "No, '" << letter << "' is not in the word!\n";
+    session.removeGuess();
 }
 
 void playGame() {
     std::cout << "Welcome to C++man (a variant of Hangman)\n";
     std::cout << "To win: guess the word.  To lose: run out of pluses.\n";
 
-    Session s {};
+    Session session {};
 
-    while (s.wrongGuessesLeft() && !s.won()) {
-        draw(s);
-        char c {getGuess(s)};
-        handleGuesses(s, c);
+    while ((session.wrongGuessesLeft() != 0) && !session.won()) {
+        draw(session);
+        char letter {getGuess(session)};
+        handleGuesses(session, letter);
     }
-    draw(s);
+    draw(session);
 
-    if (!s.wrongGuessesLeft())
-        std::cout << "You lost! The word was: " << s.getWord() << '\n';
-    else
+    if (session.wrongGuessesLeft() == 0) {
+        {
+            std::cout << "You lost! The word was: " << session.getWord() << '\n';
+        }
+    } else {
         std::cout << "You won!\n";
+    }
 }
 }  // namespace cppMan

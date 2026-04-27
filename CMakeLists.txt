@@ -5,6 +5,8 @@ string(STRIP "${RAW_VERSION}" APP_VERSION)
 
 project(LEARNCPP VERSION ${APP_VERSION})
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # For clangd
+
 set(FETCHCONTENT_BASE_DIR "${CMAKE_SOURCE_DIR}/.cache/_deps")
 include(${CMAKE_SOURCE_DIR}/cmake/Helpers.cmake)
 include(${CMAKE_SOURCE_DIR}/cmake/Versions.cmake)
