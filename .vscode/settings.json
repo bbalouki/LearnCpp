@@ -17,7 +17,7 @@
   "cmake.configureOnOpen": false,
   "cmake.configureOnEdit": false,
   "cmake.automaticReconfigure": false,
-  "terminal.integrated.defaultProfile.windows": "bash (UCRT64)",
+  "terminal.integrated.defaultProfile.windows": "PowerShell",
   "terminal.integrated.defaultProfile.linux": "bash",
   "terminal.integrated.defaultProfile.osx": "zsh",
   "terminal.integrated.profiles.windows": {
