@@ -31,7 +31,7 @@
 - **Disable non-standard compiler extensions** (`-pedantic` / `set(CMAKE_CXX_EXTENSIONS OFF)`) to keep code portable across GCC, Clang, and MSVC.
 - Enable the **highest practical warning level**: `-Wall -Wextra -Wconversion -Wsign-conversion -Weffc++` (GCC/Clang) or `/W4` (MSVC).
 - **Treat warnings as errors** (`-Werror` / `/WX`) so warning debt never accumulates; if a warning must be suppressed, document it explicitly with `[[gsl::suppress(...)]]`.
-- Maintain a **separate debug build** (no optimisations, full debug info) and a **release build** (`-O2`/`-O3`, `NDEBUG`) — never ship debug binaries.
+- Maintain a **separate debug build** (no optimisations, full debug info) and a **release build** (`-O2`/`-O3`, `NDEBUG`) , never ship debug binaries.
 - Know and check **which language standard your compiler is actually using** before relying on new features.
 - Ensure your compiler supports the features you use; consult cppreference.com "Compiler support" tables when targeting older toolchains.
 
@@ -40,17 +40,17 @@
 ## 2. Code Style, Naming & Formatting
 
 - Always use (m\_) prefix for private member variables.
-- Do not uses mdash (—) in the code or documentation or comments.
+- Do not uses mdash (--) in the code or documentation or comments.
 - Use snake_case for variable and function names and PascalCase for class and struct names.
 - Always use std::print or std::println and std::format for output and formatting.
 - All Variables, Constants, Free Functions, Member Functions, Member Variables and other symbols must be at least 3 characters long.
 - Use a **consistent, team-agreed naming convention** and enforce it with `clang-format`; commit the `.clang-format` file to version control.
-- Prefer **clear, descriptive names** over abbreviations — code is read far more often than it is written.
+- Prefer **clear, descriptive names** over abbreviations , code is read far more often than it is written.
 - Give **every entity (variable, function, class, namespace, module) one well-defined responsibility** and name it accordingly.
 - Use `snake_case` for variables and functions, `PascalCase` for types and classes, `SCREAMING_SNAKE_CASE` for macros and compile-time constants (or `constexpr` values instead of macros entirely).
 - Keep **functions short and flat**: a function that fits on one screen is easier to read, test, and reason about; nested code blocks are usually a sign of insufficient decomposition.
 - Avoid **magic literals** (`42`, `3.14159`) in code; replace them with named `constexpr` values or symbolic expressions such as `width * aspectRatio`.
-- Declare variables **as close to their point of first use as possible** — this minimises scope, reduces accidental re-use, and makes intent obvious.
+- Declare variables **as close to their point of first use as possible** , this minimises scope, reduces accidental re-use, and makes intent obvious.
 - Never leave **unused variables, parameters, or includes** in committed code; they signal incomplete refactoring and waste reader attention.
 - Prefer **`#pragma once`** (universally supported) or `#ifndef`/`#define` header guards; never omit them.
 - Limit **header file responsibilities** to declarations and inline/template definitions only; keep definitions in `.cpp` files to reduce compilation coupling.
@@ -59,10 +59,10 @@
 
 ## 3. Variables, Types & Initialization
 
-- **Always initialise variables** at the point of declaration — uninitialised variables are among the most common sources of undefined behaviour in C and C++.
+- **Always initialise variables** at the point of declaration , uninitialised variables are among the most common sources of undefined behaviour in C and C++.
 - Prefer **brace (uniform) initialisation** `T x{value}` over `T x = value` or `T x(value)` because it prevents narrowing conversions and is consistently applicable.
 - Use **`auto`** when the type is obvious from the right-hand side, long/verbose, or irrelevant to the reader; but spell the type out explicitly when it aids comprehension.
-- Prefer **`const` by default** for all values that do not need to change — immutable values are easier to reason about and enable compiler optimisations.
+- Prefer **`const` by default** for all values that do not need to change , immutable values are easier to reason about and enable compiler optimisations.
 - Use **`constexpr`** instead of `const` for values that are known at compile time; `constexpr` is evaluated at compile time and participates in template arguments.
 - Prefer **`constexpr` functions** over macros for compile-time computations.
 - Avoid **`using namespace std;`** in header files and minimise its use in source files; always qualify standard library names explicitly in headers.
@@ -81,12 +81,12 @@
 - Use **`std::unique_ptr`** for exclusive ownership of dynamically allocated objects; it has zero overhead over a raw pointer and encodes ownership in the type system.
 - Use **`std::shared_ptr`** only when true shared ownership is required; shared ownership has reference-counting overhead and can hide lifetime design flaws.
 - Use **`std::weak_ptr`** to break reference cycles in `shared_ptr` graphs; a `weak_ptr` does not affect the reference count.
-- Always create smart pointers with **`std::make_unique<T>()`** or **`std::make_shared<T>()`** — never call `new` directly, as it can leak in the presence of exceptions.
+- Always create smart pointers with **`std::make_unique<T>()`** or **`std::make_shared<T>()`** , never call `new` directly, as it can leak in the presence of exceptions.
 - **Never `delete` a raw pointer manually** in application code; if a raw pointer appears, it should be non-owning (an observer) and its documentation must say so.
-- Follow the **Rule of Zero**: if you design a class whose members are all RAII types, you need not declare a destructor, copy constructor, or copy/move assignment operator — the compiler-generated defaults are correct.
+- Follow the **Rule of Zero**: if you design a class whose members are all RAII types, you need not declare a destructor, copy constructor, or copy/move assignment operator , the compiler-generated defaults are correct.
 - Follow the **Rule of Five** when you do own a raw resource: declare the destructor, copy constructor, copy assignment, move constructor, and move assignment operator together.
 - Use **move semantics** (`std::move`, `&&`) when transferring ownership of large objects to avoid unnecessary deep copies; never use `std::move` on a `const` object.
-- Prefer **standard library containers** (`std::vector`, `std::map`, `std::unordered_map`, etc.) over manual dynamic arrays — they are RAII-compliant and use allocators correctly.
+- Prefer **standard library containers** (`std::vector`, `std::map`, `std::unordered_map`, etc.) over manual dynamic arrays , they are RAII-compliant and use allocators correctly.
 - **Never allocate more than one resource in a single statement**; split multi-resource allocations across separate lines to keep exception safety.
 - Detect memory leaks during development with **AddressSanitizer** (`-fsanitize=address`) or Valgrind; treat every reported leak as a defect.
 - Never use Raw pointers and C-style arrays unless dealing with legacy code or specific performance requirements.
@@ -102,12 +102,12 @@
 - Return **values by value** and rely on Named Return Value Optimisation (NRVO) / Return Value Optimisation (RVO) rather than output parameters where possible.
 - Use **`[[nodiscard]]`** on functions whose return values must not be silently discarded (e.g., error codes, smart pointers, `expected<T, E>`).
 - Mark functions that **cannot throw** as `noexcept`; this enables optimisations and is part of the function's contract.
-- Prefer **default function arguments** sparingly; too many defaults hide what a caller is actually providing — consider overloads or a builder pattern instead.
+- Prefer **default function arguments** sparingly; too many defaults hide what a caller is actually providing , consider overloads or a builder pattern instead.
 - Avoid **output parameters** (pointer/reference arguments used only to return values); prefer returning a `struct`, `std::pair`, or `std::tuple` instead.
 - Use **lambda expressions** for short, local callbacks; capture only what is needed and avoid capturing `[=]` when the captured set is large.
 - Prefer **`std::function`** for type-erased callbacks only when necessary; for performance-sensitive code, prefer templates with concepts constraints instead.
 - Validate **function preconditions** with `assert()` in debug builds or `[[expects]]` contracts (C++26); document them in comments if not expressible in code.
-- Never return a **reference or pointer to a local variable** — it is undefined behaviour; return by value or by smart pointer.
+- Never return a **reference or pointer to a local variable** , it is undefined behaviour; return by value or by smart pointer.
 
 ---
 
@@ -122,7 +122,7 @@
 - Use **`struct`** for plain data aggregates with no invariants and all-public members; use `class` when invariants must be enforced.
 - Prefer **composition over inheritance** for code reuse; use inheritance only to model true "is-a" relationships or to implement interfaces.
 - Prefer **pure abstract interfaces** (all pure virtual functions, no data members) over deep concrete hierarchies.
-- Do not call **virtual functions from constructors or destructors** — derived overrides are not yet in effect during base construction.
+- Do not call **virtual functions from constructors or destructors** , derived overrides are not yet in effect during base construction.
 - Avoid **implicit type conversions** through operator overloads or constructors unless they are natural and well-understood by callers.
 - Use **`[[nodiscard]]`** on getter-like member functions to prevent callers from accidentally ignoring the returned state.
 
@@ -139,7 +139,7 @@
 - Use **`static_assert`** for compile-time invariants that should never be false; they document assumptions and fail loudly at compile time instead of silently at runtime.
 - Use **`assert()`** in debug builds to catch programming mistakes (broken invariants, null preconditions); never `assert()` on user input.
 - Provide **meaningful error messages** in exceptions and assertions; the message should explain _what_ was expected vs. _what_ was observed.
-- On error paths, ensure all acquired resources are released — RAII handles this automatically; be extra careful in C-interop code.
+- On error paths, ensure all acquired resources are released , RAII handles this automatically; be extra careful in C-interop code.
 
 ---
 
@@ -159,12 +159,12 @@
 
 ## 9. Concurrency & Parallelism
 
-- **Assume your code will run as part of a multi-threaded program** — avoid global mutable state, prefer const or thread-local data.
+- **Assume your code will run as part of a multi-threaded program** , avoid global mutable state, prefer const or thread-local data.
 - Protect shared mutable state with **`std::mutex`** (or `std::shared_mutex` for read-heavy workloads); never access shared data without synchronisation.
 - Prefer **`std::jthread`** (C++20) over `std::thread`; it joins automatically on destruction, preventing the accidental termination caused by a detached or un-joined thread.
 - **Never `detach()` a thread** unless you have a clear, safe shutdown mechanism; detached threads holding pointers to local data lead to undefined behaviour.
 - Use **`std::atomic<T>`** for single-variable lock-free operations; do not use raw `volatile` for inter-thread communication.
-- **Never call unknown code while holding a lock** (e.g., callbacks, virtual functions on external objects) — it can cause deadlocks.
+- **Never call unknown code while holding a lock** (e.g., callbacks, virtual functions on external objects) , it can cause deadlocks.
 - Minimise the **time spent holding a lock**: acquire late, release early, and avoid blocking I/O inside a critical section.
 - Prefer **higher-level concurrency abstractions** (`std::async`, `std::packaged_task`, parallel algorithms via `<execution>`) over raw thread management.
 - Use **`std::condition_variable`** with a predicate lambda to avoid spurious wake-ups: `cv.wait(lock, []{ return ready; })`.
@@ -184,7 +184,7 @@
 - Use **move semantics** to avoid deep copies of expensive-to-copy objects like strings, vectors, and maps.
 - Rely on the **static type system** for performance: strong types enable compiler optimisations that are impossible with `void*` or type-erased interfaces.
 - Use **`constexpr`** and compile-time computation to move work from runtime to compile time wherever correct and readable.
-- Prefer **standard library algorithms** (`std::sort`, `std::find_if`, `std::transform`, etc.) over hand-written loops — they are well-optimised and convey intent clearly.
+- Prefer **standard library algorithms** (`std::sort`, `std::find_if`, `std::transform`, etc.) over hand-written loops , they are well-optimised and convey intent clearly.
 - Enable and use **link-time optimisation (LTO)** and **profile-guided optimisation (PGO)** in release builds for production software.
 - Measure the **actual binary size and startup time** for embedded or mobile targets, not just runtime throughput.
 
@@ -210,7 +210,7 @@
 ## 12. Testing
 
 - Write **unit tests for every non-trivial function and class**; tests are the executable specification of your design.
-- Use an established testing framework: **GoogleTest** (gtest/gmock), Catch2, or doctest — they integrate cleanly with CMake via `FetchContent` and CTest.
+- Use an established testing framework: **GoogleTest** (gtest/gmock), Catch2, or doctest , they integrate cleanly with CMake via `FetchContent` and CTest.
 - Integrate tests into the build system with **CTest** (`enable_testing()`, `add_test()`) so `cmake --build . && ctest` is the single command to build and test.
 - Write tests **before or alongside implementation** (test-driven development) to drive good interface design; testable code is almost always better-structured code.
 - Test **edge cases, boundary conditions, and error paths** as thoroughly as the happy path; bugs concentrate at boundaries.
@@ -265,7 +265,7 @@
 - Generate HTML documentation as part of CI so it stays current.
 - Keep the **public API surface as small as possible**: every public symbol is a commitment you must maintain; hide implementation details in anonymous namespaces or `detail::` sub-namespaces.
 - Refactor mercilessly: **remove dead code**, extract repeated logic, rename misleading identifiers, and split oversized files when the codebase grows beyond easy comprehension.
-- Follow the **Boy Scout Rule**: leave every file you touch slightly cleaner than you found it — fix a warning, add a missing test, or improve a confusing name.
+- Follow the **Boy Scout Rule**: leave every file you touch slightly cleaner than you found it , fix a warning, add a missing test, or improve a confusing name.
 - **Review all code** before merging: more eyes catch more bugs, spread knowledge, and maintain consistent style; automated checks (CI, lint, format) are prerequisites, not substitutes, for human review.
 - Use **`[[deprecated("reason")]]`** to mark APIs that should not be used in new code; give a migration path in the deprecation message.
 - Track **technical debt explicitly** (issues, TODO comments with ticket numbers) rather than leaving it invisible; allocate time to pay it down regularly.
@@ -275,4 +275,4 @@
 
 ---
 
-_Sources: [LearnCpp.com](https://www.learncpp.com) · [StudyPlan.dev — Intro to C++](https://www.studyplan.dev/intro-to-programming) · [StudyPlan.dev — Pro C++](https://www.studyplan.dev/pro-cpp) · [StudyPlan.dev — CMake](https://www.studyplan.dev/cmake) · [cppreference.com](https://cppreference.com) · [C++ Core Guidelines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines) · [Google C++ Style Guide](https://google.github.io/styleguide/cppguide.html) · [Herb Sutter & Andrei Alexandrescu — C++ Coding Standards (101 Rules)](https://micro-os-plus.github.io/develop/sutter-101/) · [isocpp.org — Coding Standards FAQ](https://isocpp.org/wiki/faq/coding-standards)_
+_Sources: [LearnCpp.com](https://www.learncpp.com) · [StudyPlan.dev , Intro to C++](https://www.studyplan.dev/intro-to-programming) · [StudyPlan.dev , Pro C++](https://www.studyplan.dev/pro-cpp) · [StudyPlan.dev , CMake](https://www.studyplan.dev/cmake) · [cppreference.com](https://cppreference.com) · [C++ Core Guidelines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines) · [Google C++ Style Guide](https://google.github.io/styleguide/cppguide.html) · [Herb Sutter & Andrei Alexandrescu , C++ Coding Standards (101 Rules)](https://micro-os-plus.github.io/develop/sutter-101/) · [isocpp.org , Coding Standards FAQ](https://isocpp.org/wiki/faq/coding-standards)_
