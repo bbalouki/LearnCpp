@@ -35,6 +35,7 @@ add_subdirectory(src/datamodel)
 add_subdirectory(src/greeter)
 add_subdirectory(src/date)
 add_subdirectory(src/app)
+add_subdirectory(src/memory)
 
 if (${PROJECT_NAME}_BUILD_TESTS)
     enable_testing()

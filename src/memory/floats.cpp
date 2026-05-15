@@ -2,69 +2,88 @@
 #include <cstdint>
 #include <cstring>
 #include <iostream>
-
-using namespace std;
+#include <print>
 
 // Dissect any float into its IEEE 754 fields
-void dissectFloat(float f) {
-    uint32_t bits;
-    memcpy(&bits, &f, 4);  // safe type-pun — no undefined behavior
+void dissectFloat(float value) {
+    uint32_t         bits;
+    constexpr size_t floatSize = 4;
+    std::memcpy(&bits, &value, floatSize);  // safe type-pun — no undefined behavior
 
-    uint32_t sign     = bits >> 31;
-    uint32_t exponent = (bits >> 23) & 0xFF;
-    uint32_t mantissa = bits & 0x7FFFFF;
+    constexpr int      signShift     = 31;
+    constexpr int      exponentShift = 23;
+    constexpr uint32_t exponentMask  = 0xFF;
+    constexpr uint32_t mantissaMask  = 0x7FFFFF;
+    constexpr int      bias          = 127;
 
-    printf("\nfloat = %f\n", f);
-    printf("Raw hex : 0x%08X\n", bits);
-    printf("Sign    : %u         (%s)\n", sign, sign ? "negative" : "positive");
-    printf("Exponent: %u         (biased), actual = %d\n", exponent, (int)exponent - 127);
-    printf("Mantissa: 0x%06X\n", mantissa);
+    uint32_t sign     = bits >> signShift;
+    uint32_t exponent = (bits >> exponentShift) & exponentMask;
+    uint32_t mantissa = bits & mantissaMask;
+
+    std::println("\nfloat = {}", value);
+    std::println("Raw hex : 0x{:08X}", bits);
+    std::println("Sign    : {}         ({})", sign, sign ? "negative" : "positive");
+    std::println(
+        "Exponent: {}         (biased), actual = {}", exponent, static_cast<int>(exponent) - bias
+    );
+    std::println("Mantissa: 0x{:06X}", mantissa);
 
     // Reconstruct value from raw fields
-    double check =
-        pow(-1.0, sign) * pow(2.0, (int)exponent - 127) * (1.0 + (double)mantissa / (1 << 23));
-    printf("Verify  : %.10f\n", check);
+    double check = std::pow(-1.0, sign) * std::pow(2.0, static_cast<int>(exponent) - bias) *
+                   (1.0 + static_cast<double>(mantissa) / (1 << exponentShift));
+    std::println("Verify  : {:.10f}", check);
 }
 
 // Why 0.1 + 0.2 != 0.3
 void floatPrecision() {
-    float a = 0.1f, b = 0.2f;
-    printf("\n0.1f + 0.2f = %.20f\n", a + b);  // NOT exactly 0.3
-    printf("0.3f        = %.20f\n", 0.3f);
+    float valA = 0.1f, valB = 0.2f;
+    std::println("\n0.1f + 0.2f = {:.20f}", valA + valB);  // NOT exactly 0.3
+    std::println("0.3f        = {:.20f}", 0.3f);
 
     // Correct way: compare with epsilon
-    float eps   = 1e-6f;
-    bool  equal = fabs((a + b) - 0.3f) < eps;
-    printf("Equal within 1e-6: %s\n", equal ? "true" : "false");
+    constexpr float epsilonValue = 1e-6f;
+    bool            isEqual      = std::fabs((valA + valB) - 0.3f) < epsilonValue;
+    std::println("Equal within 1e-6: {}", isEqual ? "true" : "false");
 }
 
 // double: 64 bits (1+11+52)
-void dissectDouble(double d) {
-    uint64_t bits;
-    memcpy(&bits, &d, 8);
-    uint64_t sign     = bits >> 63;
-    uint64_t exponent = (bits >> 52) & 0x7FF;
-    uint64_t mantissa = bits & 0x000FFFFFFFFFFFFFull;
-    printf(
-        "\ndouble %.4f: sign=%llu exp=%llu (actual %lld) mantissa=0x%013llX\n",
-        d,
+void dissectDouble(double doubleVal) {
+    uint64_t         bits;
+    constexpr size_t doubleSize = 8;
+    std::memcpy(&bits, &doubleVal, doubleSize);
+
+    constexpr int      signShift     = 63;
+    constexpr int      exponentShift = 52;
+    constexpr uint64_t exponentMask  = 0x7FF;
+    constexpr uint64_t mantissaMask  = 0x000FFFFFFFFFFFFFull;
+    constexpr int      bias          = 1023;
+
+    uint64_t sign     = bits >> signShift;
+    uint64_t exponent = (bits >> exponentShift) & exponentMask;
+    uint64_t mantissa = bits & mantissaMask;
+    std::println(
+        "\ndouble {:.4f}: sign={} exp={} (actual {}) mantissa=0x{:013X}",
+        doubleVal,
         sign,
         exponent,
-        (long long)exponent - 1023,
+        static_cast<long long>(exponent) - bias,
         mantissa
     );
 }
 
 // Special IEEE 754 bit patterns
 void specials() {
-    float    inf  = 1.0f / 0.0f;
-    float    nan  = 0.0f / 0.0f;
-    float    ninf = -1.0f / 0.0f;
-    uint32_t b1, b2, b3;
-    memcpy(&b1, &inf, 4);
-    memcpy(&b2, &nan, 4);
-    memcpy(&b3, &ninf, 4);
-    printf("\n+Inf = 0x%08X   -Inf = 0x%08X   NaN = 0x%08X\n", b1, b3, b2);
+    float            inf  = 1.0f / 0.0f;
+    float            nan  = 0.0f / 0.0f;
+    float            ninf = -1.0f / 0.0f;
+    uint32_t         bitsInf, bitsNaN, bitsNinf;
+    constexpr size_t floatSize = 4;
+    std::memcpy(&bitsInf, &inf, floatSize);
+    std::memcpy(&bitsNaN, &nan, floatSize);
+    std::memcpy(&bitsNinf, &ninf, floatSize);
+    std::println(
+        "\n+Inf = 0x{:08X}   -Inf = 0x{:08X}   NaN = 0x{:08X}", bitsInf, bitsNinf, bitsNaN
+    );
     // +Inf = 0x7F800000  (exp=0xFF, mantissa=0)
     // NaN  = 0x7FC00000  (exp=0xFF, mantissa != 0)
 }

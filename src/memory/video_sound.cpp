@@ -2,63 +2,67 @@
 #include <cstdint>
 #include <fstream>
 #include <iostream>
+#include <print>
 #include <vector>
-
-using namespace std;
 
 // Packet: the indivisible unit of A/V data
 enum class StreamType : uint8_t { VIDEO = 0, AUDIO = 1 };
 
 struct Packet {
-    StreamType      type;
-    int64_t         pts;  // presentation timestamp (microseconds)
-    int64_t         dts;  // decode timestamp (differs for B-frames)
-    bool            keyframe;
-    vector<uint8_t> data;  // compressed payload (H.264 NAL / AAC frame)
+    StreamType           type;
+    int64_t              pts;  // presentation timestamp (microseconds)
+    int64_t              dts;  // decode timestamp (differs for B-frames)
+    bool                 keyframe;
+    std::vector<uint8_t> data;  // compressed payload (H.264 NAL / AAC frame)
 
-    size_t serializedSize() const { return 22 + data.size(); }
+    size_t serializedSize() const {
+        constexpr size_t headerSize = 22;
+        return headerSize + data.size();
+    }
     // 22 = 1 type + 8 pts + 8 dts + 1 flags + 4 size
 };
 
 // Muxer: collect and interleave A/V packets
 struct AVMuxer {
-    vector<Packet> packets;
+    std::vector<Packet> packets;
 
-    void addVideo(int64_t pts, bool key, vector<uint8_t> payload) {
-        packets.push_back({StreamType::VIDEO, pts, pts, key, move(payload)});
+    void addVideo(int64_t pts, bool key, std::vector<uint8_t> payload) {
+        packets.push_back({StreamType::VIDEO, pts, pts, key, std::move(payload)});
     }
-    void addAudio(int64_t pts, vector<uint8_t> payload) {
-        packets.push_back({StreamType::AUDIO, pts, pts, true, move(payload)});
+    void addAudio(int64_t pts, std::vector<uint8_t> payload) {
+        packets.push_back({StreamType::AUDIO, pts, pts, true, std::move(payload)});
     }
     // Sort all packets by decode timestamp before writing
     void finalize() {
-        sort(packets.begin(), packets.end(), [](const Packet& a, const Packet& b) {
-            return a.dts < b.dts;
+        std::sort(packets.begin(), packets.end(), [](const Packet& pktA, const Packet& pktB) {
+            return pktA.dts < pktB.dts;
         });
     }
     void printTable() const {
-        size_t total = 0;
-        printf("\n%-10s %-10s %-6s %-10s\n", "TYPE", "PTS(ms)", "KEY", "BYTES");
-        puts("──────────────────────────────────────");
-        for (const auto& p : packets) {
-            printf(
-                "%-10s %-10lld %-6s %-10zu\n",
-                p.type == StreamType::VIDEO ? "VIDEO" : "AUDIO",
-                (long long)(p.pts / 1000),
-                p.keyframe ? "yes" : "no",
-                p.serializedSize()
+        size_t totalBytes = 0;
+        std::println("\n{:<10} {:<10} {:<6} {:<10}", "TYPE", "PTS(ms)", "KEY", "BYTES");
+        std::println("──────────────────────────────────────");
+        for (const auto& packet : packets) {
+            constexpr int msDivisor = 1000;
+            std::println(
+                "{:<10} {:<10} {:<6} {:<10}",
+                packet.type == StreamType::VIDEO ? "VIDEO" : "AUDIO",
+                static_cast<long long>(packet.pts / msDivisor),
+                packet.keyframe ? "yes" : "no",
+                packet.serializedSize()
             );
-            total += p.serializedSize();
+            totalBytes += packet.serializedSize();
         }
-        printf("\nTotal container size: %zu bytes\n", total);
+        std::println("\nTotal container size: {} bytes", totalBytes);
     }
 };
 
 // Demuxer: split container back into separate streams
 struct AVDemuxer {
-    vector<Packet> video, audio;
-    void           demux(const vector<Packet>& src) {
-        for (const auto& p : src) (p.type == StreamType::VIDEO ? video : audio).push_back(p);
+    std::vector<Packet> video, audio;
+    void                demux(const std::vector<Packet>& source) {
+        for (const auto& packet : source)
+            (packet.type == StreamType::VIDEO ? video : audio).push_back(packet);
     }
 };
 
@@ -67,42 +71,59 @@ struct AVClock {
     int64_t videoPTS = 0, audioPTS = 0;
     void    onVideo(int64_t pts) { videoPTS = pts; }
     void    onAudio(int64_t pts) { audioPTS = pts; }
-    int64_t videoLead() const { return videoPTS - audioPTS; }          // microseconds
-    bool    shouldDelay() const { return videoLead() > 50000; }        // video > 50ms ahead
-    bool    shouldDropFrame() const { return videoLead() < -100000; }  // video > 100ms behind
+    int64_t videoLead() const { return videoPTS - audioPTS; }  // microseconds
+    bool    shouldDelay() const {
+        constexpr int delayThreshold = 50000;  // 50ms
+        return videoLead() > delayThreshold;
+    }
+    bool shouldDropFrame() const {
+        constexpr int dropThreshold = -100000;  // 100ms
+        return videoLead() < dropThreshold;
+    }
 };
 
 // Write a minimal container file
-void writeMuxed(const AVMuxer& mux, const char* path) {
-    ofstream   f(path, ios::binary);
-    const char magic[] = "AVMUX";
-    f.write(magic, 5);
-    uint32_t count = mux.packets.size();
-    f.write((char*)&count, 4);
-    for (const auto& p : mux.packets) {
-        uint8_t  type  = (uint8_t)p.type;
-        uint8_t  flags = p.keyframe ? 1 : 0;
-        uint32_t sz    = p.data.size();
-        f.write((char*)&type, 1);
-        f.write((char*)&p.pts, 8);
-        f.write((char*)&p.dts, 8);
-        f.write((char*)&flags, 1);
-        f.write((char*)&sz, 4);
-        f.write((char*)p.data.data(), sz);
+void writeMuxed(const AVMuxer& mux, const char* filePath) {
+    std::ofstream    file(filePath, std::ios::binary);
+    const char       magic[]   = "AVMUX";
+    constexpr size_t magicSize = 5;
+    file.write(magic, magicSize);
+    uint32_t count = static_cast<uint32_t>(mux.packets.size());
+    file.write(reinterpret_cast<char*>(&count), sizeof(uint32_t));
+    for (const auto& packet : mux.packets) {
+        uint8_t  type     = static_cast<uint8_t>(packet.type);
+        uint8_t  flags    = packet.keyframe ? 1 : 0;
+        uint32_t dataSize = static_cast<uint32_t>(packet.data.size());
+        file.write(reinterpret_cast<char*>(&type), sizeof(uint8_t));
+        file.write(reinterpret_cast<const char*>(&packet.pts), sizeof(int64_t));
+        file.write(reinterpret_cast<const char*>(&packet.dts), sizeof(int64_t));
+        file.write(reinterpret_cast<char*>(&flags), sizeof(uint8_t));
+        file.write(reinterpret_cast<char*>(&dataSize), sizeof(uint32_t));
+        file.write(reinterpret_cast<const char*>(packet.data.data()), dataSize);
     }
 }
 
 int main() {
-    AVMuxer mux;
-    int64_t usPerFrame = 33333;  // 30 fps = 33.3ms/frame
-    int64_t usPerAudio = 23220;  // AAC = 1024 samples @ 44100 Hz
+    AVMuxer           mux;
+    constexpr int64_t usPerFrame = 33333;  // 30 fps = 33.3ms/frame
+    constexpr int64_t usPerAudio = 23220;  // AAC = 1024 samples @ 44100 Hz
 
-    for (int i = 0; i < 10; ++i) {
-        bool key = (i % 3 == 0);  // keyframe every 3rd frame (GOP size=3)
+    constexpr int videoPacketCount = 10;
+    for (int index = 0; index < videoPacketCount; ++index) {
+        constexpr int keyframeInterval = 3;
+        bool key = (index % keyframeInterval == 0);  // keyframe every 3rd frame (GOP size=3)
         // I-frames are ~10x larger than P-frames
-        mux.addVideo(i * usPerFrame, key, vector<uint8_t>(key ? 8000 : 800, 0xAB));
+        constexpr size_t keyframeSize = 8000;
+        constexpr size_t pFrameSize   = 800;
+        mux.addVideo(
+            index * usPerFrame, key, std::vector<uint8_t>(key ? keyframeSize : pFrameSize, 0xAB)
+        );
     }
-    for (int i = 0; i < 14; ++i) mux.addAudio(i * usPerAudio, vector<uint8_t>(384, 0xCD));
+    constexpr int audioPacketCount = 14;
+    for (int index = 0; index < audioPacketCount; ++index) {
+        constexpr size_t audioPayloadSize = 384;
+        mux.addAudio(index * usPerAudio, std::vector<uint8_t>(audioPayloadSize, 0xCD));
+    }
 
     mux.finalize();
     mux.printTable();
@@ -110,16 +131,19 @@ int main() {
 
     AVDemuxer demux;
     demux.demux(mux.packets);
-    printf(
-        "\nDemuxed -> Video: %zu pkts  Audio: %zu pkts\n", demux.video.size(), demux.audio.size()
+    std::println(
+        "\nDemuxed -> Video: {} pkts  Audio: {} pkts", demux.video.size(), demux.audio.size()
     );
 
-    AVClock clock;
-    clock.onAudio(100000);
-    clock.onVideo(200000);  // video 100ms ahead of audio
-    printf(
-        "Video lead: %lldms  Should delay video: %s\n",
-        (long long)(clock.videoLead() / 1000),
+    AVClock           clock;
+    constexpr int64_t audioStartPTS = 100000;
+    constexpr int64_t videoStartPTS = 200000;
+    clock.onAudio(audioStartPTS);
+    clock.onVideo(videoStartPTS);  // video 100ms ahead of audio
+    constexpr int msDivisor = 1000;
+    std::println(
+        "Video lead: {}ms  Should delay video: {}",
+        static_cast<long long>(clock.videoLead() / msDivisor),
         clock.shouldDelay() ? "yes" : "no"
     );
 }

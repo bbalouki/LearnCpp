@@ -430,7 +430,7 @@
   <main id="content"></main>
 
   <footer>
-    <span>All code is C++23 — compile with: g++ -std=c++17 -O2 file.cpp</span>
+    <span>All code is C++23 — compile with: g++ -std=c++23 -O2 file.cpp</span>
     <span>memory addresses are virtual (OS mapped)</span>
   </footer>
 
@@ -613,33 +613,37 @@
           + '</div></div>')
 
         + section('C++ Code', codeBlock(
-          `#include <iostream>
-#include <cstdint>
-using namespace std;
+          `#include <cstdint>
+#include <iostream>
+#include <print>
 
-void inspectChar(char c) {
+void inspectChar(char character) {
     // A char IS an 8-bit integer — cast it to see the number
-    uint8_t raw = static_cast<uint8_t>(c);
+    uint8_t raw = static_cast<uint8_t>(character);
 
-    cout << "Char   : " << c               << endl;  // A
-    cout << "Decimal: " << (int)raw        << endl;  // 65
-    cout << "Hex    : " << hex << (int)raw << endl;  // 41
-    cout << "Bits   : ";
-    for (int i = 7; i >= 0; --i)
-        cout << ((raw >> i) & 1);           // 01000001
-    cout << endl;
+    std::println("Char   : {}", character);                // A
+    std::println("Decimal: {}", static_cast<int>(raw));    // 65
+    std::println("Hex    : {:x}", static_cast<int>(raw));  // 41
+    std::print("Bits   : ");
+    constexpr int bitSize = 8;
+    for (int index = bitSize - 1; index >= 0; --index) {
+        std::print("{}", (raw >> index) & 1);  // 01000001
+    }
+    std::println();
 
-    cout << "Address: " << (void*)&c       << endl;
-    cout << "Size   : " << sizeof(c) << " byte" << endl; // always 1
+    std::println("Address: {}", static_cast<void*>(&character));
+    std::println("Size   : {} byte", sizeof(character));  // always 1
 }
 
 // UTF-8: multi-byte characters
 void inspectUTF8() {
     // The Euro sign encodes as 3 bytes in UTF-8: E2 82 AC
-    const char euro[] = "\xe2\x82\xac"; // 3 bytes + NUL
-    printf("UTF-8 bytes for the Euro sign:\\n");
-    for (int i = 0; i < 3; ++i)
-        printf("  byte[%d] = 0x%02X\\n", i, (uint8_t)euro[i]);
+    const char euro[] = "\xe2\x82\xac";  // 3 bytes + NUL
+    std::println("UTF-8 bytes for the Euro sign:");
+    constexpr int euroBytes = 3;
+    for (int index = 0; index < euroBytes; ++index) {
+        std::println("  byte[{}] = 0x{:02X}", index, static_cast<uint8_t>(euro[index]));
+    }
     // Output:
     //   byte[0] = 0xE2   (11100010)
     //   byte[1] = 0x82   (10000010)
@@ -648,16 +652,18 @@ void inspectUTF8() {
 
 // Reading raw memory back as a char
 void readFromMemory() {
-    uint8_t rawByte = 0x41;          // store the number 65
-    char* asChar = reinterpret_cast<char*>(&rawByte);
-    cout << "Raw 0x41 as char: " << *asChar << endl;  // prints 'A'
+    constexpr uint8_t rawByteValue = 0x41;  // store the number 65
+    uint8_t rawByte = rawByteValue;
+    char*   asChar  = reinterpret_cast<char*>(&rawByte);
+    std::println("Raw 0x41 as char: {}", *asChar);  // prints 'A'
 }
 
 int main() {
     inspectChar('A');
     inspectUTF8();
     readFromMemory();
-}`))
+}
+`))
 
         + section('ASCII quick reference',
           '<div class="ascii-grid">'
@@ -704,34 +710,37 @@ int main() {
           + '</div>')
 
         + section('C++ Code', codeBlock(
-          `#include <iostream>
-#include <cstdint>
+          `#include <cstdint>
 #include <cstring>
-using namespace std;
+#include <iostream>
+#include <print>
 
 // Print every bit of any integer
-template<typename T>
+template <typename T>
 void printBits(T value, const char* label) {
-    cout << label << " (" << sizeof(T)*8 << "-bit): ";
-    for (int i = sizeof(T)*8 - 1; i >= 0; --i) {
-        cout << ((value >> i) & 1);
-        if (i % 8 == 0 && i != 0) cout << '_'; // group bytes visually
+    constexpr int bitSize = sizeof(T) * 8;
+    std::print("{} ({}-bit): ", label, bitSize);
+    for (int index = bitSize - 1; index >= 0; --index) {
+        std::print("{}", (value >> index) & 1);
+        constexpr int byteGroup = 8;
+        if (index % byteGroup == 0 && index != 0)
+            std::print("_");  // group bytes visually
     }
-    cout << "  dec=" << (long long)value
-         << "  hex=0x" << hex << (unsigned long long)value << dec << endl;
+    std::println("  dec={}  hex=0x{:x}", static_cast<long long>(value), static_cast<unsigned long long>(value));
 }
 
 // Two's complement: signed vs unsigned same bits
 void twosComplement() {
-    int8_t  s = -1;
-    uint8_t u;
-    memcpy(&u, &s, 1);  // copy raw bytes — no value conversion
-    printf("int8_t  -1 stored as: 0x%02X = %u unsigned\\n", u, u); // 0xFF = 255
+    int8_t  signedVal = -1;
+    uint8_t unsignedVal;
+    constexpr size_t byteSize = 1;
+    std::memcpy(&unsignedVal, &signedVal, byteSize);  // copy raw bytes — no value conversion
+    std::println("int8_t  -1 stored as: 0x{:02X} = {} unsigned", unsignedVal, unsignedVal);  // 0xFF = 255
 
-    int8_t  s2 = -56;
-    uint8_t u2;
-    memcpy(&u2, &s2, 1);
-    printf("int8_t -56 stored as: 0x%02X = %u unsigned\\n", u2, u2); // 0xC8 = 200
+    int8_t  signedVal2 = -56;
+    uint8_t unsignedVal2;
+    std::memcpy(&unsignedVal2, &signedVal2, byteSize);
+    std::println("int8_t -56 stored as: 0x{:02X} = {} unsigned", unsignedVal2, unsignedVal2);  // 0xC8 = 200
 }
 
 // Endianness: how a 32-bit int lays out in RAM
@@ -739,42 +748,48 @@ void endianness() {
     uint32_t value = 0x12345678;
     uint8_t* bytes = reinterpret_cast<uint8_t*>(&value);
 
-    printf("\\n0x12345678 in memory (byte-by-byte):\\n");
-    for (int i = 0; i < 4; ++i)
-        printf("  Address +%d: 0x%02X\\n", i, bytes[i]);
+    std::println("\n0x12345678 in memory (byte-by-byte):");
+    constexpr int byteCount = 4;
+    for (int index = 0; index < byteCount; ++index) {
+        std::println("  Address +{}: 0x{:02X}", index, bytes[index]);
+    }
     // On little-endian (x86): 0x78  0x56  0x34  0x12
     // On big-endian (network): 0x12  0x34  0x56  0x78
 }
 
 // Reconstruct an int from raw bytes
 void buildFromBytes() {
-    uint8_t raw[4] = {0x78, 0x56, 0x34, 0x12}; // little-endian layout
+    uint8_t  raw[4] = {0x78, 0x56, 0x34, 0x12};  // little-endian layout
     uint32_t result;
-    memcpy(&result, raw, 4);
-    printf("\\nReconstructed: %u (0x%X)\\n", result, result); // 305419896
+    constexpr size_t byteCount = 4;
+    std::memcpy(&result, raw, byteCount);
+    std::println("\nReconstructed: {} (0x{:X})", result, result);  // 305419896
 }
 
-// Overflow behavior 
+// Overflow behavior
 void overflow() {
-    uint8_t u = 255;
-    u++;                  // wraps: 255 + 1 = 0  (modulo 2^8)
-    printf("\\nuint8_t 255+1 = %u\\n", u);  // 0
+    constexpr uint8_t maxUint8 = 255;
+    uint8_t unsignedVal = maxUint8;
+    unsignedVal++;                                  // wraps: 255 + 1 = 0  (modulo 2^8)
+    std::println("\nuint8_t 255+1 = {}", unsignedVal);  // 0
 
-    int8_t s = 127;
-    s++;                  // UNDEFINED BEHAVIOR for signed overflow
-    printf("int8_t  127+1 = %d (UB — likely -128 on x86)\\n", s);
+    constexpr int8_t maxInt8 = 127;
+    int8_t signedVal = maxInt8;
+    signedVal++;  // UNDEFINED BEHAVIOR for signed overflow
+    std::println("int8_t  127+1 = {} (UB — likely -128 on x86)", signedVal);
 }
 
 int main() {
-    printBits((uint8_t)200,        "uint8_t  200");
-    printBits((int8_t)-56,         " int8_t  -56");
-    printBits((uint32_t)305419896, "uint32_t 0x12345678");
-    printBits((int32_t)-1,         " int32_t   -1");
+    printBits(static_cast<uint8_t>(200), "uint8_t  200");
+    printBits(static_cast<int8_t>(-56), " int8_t  -56");
+    printBits(static_cast<uint32_t>(305419896), "uint32_t 0x12345678");
+    printBits(static_cast<int32_t>(-1), " int32_t   -1");
     twosComplement();
     endianness();
     buildFromBytes();
     overflow();
-}`))
+}
+`))
 
         + section("Two's complement formula",
           '<div class="mini-code">'
@@ -832,68 +847,88 @@ int main() {
           + '</div>')
 
         + section('C++ Code', codeBlock(
-          `#include <iostream>
+          `#include <cmath>
 #include <cstdint>
 #include <cstring>
-#include <cmath>
-using namespace std;
+#include <iostream>
+#include <print>
 
 // Dissect any float into its IEEE 754 fields
-void dissectFloat(float f) {
+void dissectFloat(float value) {
     uint32_t bits;
-    memcpy(&bits, &f, 4);  // safe type-pun — no undefined behavior
+    constexpr size_t floatSize = 4;
+    std::memcpy(&bits, &value, floatSize);  // safe type-pun — no undefined behavior
 
-    uint32_t sign     =  bits >> 31;
-    uint32_t exponent = (bits >> 23) & 0xFF;
-    uint32_t mantissa =  bits & 0x7FFFFF;
+    constexpr int signShift = 31;
+    constexpr int exponentShift = 23;
+    constexpr uint32_t exponentMask = 0xFF;
+    constexpr uint32_t mantissaMask = 0x7FFFFF;
+    constexpr int bias = 127;
 
-    printf("\\nfloat = %f\\n", f);
-    printf("Raw hex : 0x%08X\\n", bits);
-    printf("Sign    : %u         (%s)\\n", sign, sign ? "negative" : "positive");
-    printf("Exponent: %u         (biased), actual = %d\\n",
-            exponent, (int)exponent - 127);
-    printf("Mantissa: 0x%06X\\n", mantissa);
+    uint32_t sign     = bits >> signShift;
+    uint32_t exponent = (bits >> exponentShift) & exponentMask;
+    uint32_t mantissa = bits & mantissaMask;
+
+    std::println("\nfloat = {}", value);
+    std::println("Raw hex : 0x{:08X}", bits);
+    std::println("Sign    : {}         ({})", sign, sign ? "negative" : "positive");
+    std::println("Exponent: {}         (biased), actual = {}", exponent, static_cast<int>(exponent) - bias);
+    std::println("Mantissa: 0x{:06X}", mantissa);
 
     // Reconstruct value from raw fields
-    double check = pow(-1.0, sign)
-                 * pow(2.0,  (int)exponent - 127)
-                 * (1.0 + (double)mantissa / (1 << 23));
-    printf("Verify  : %.10f\\n", check);
+    double check =
+        std::pow(-1.0, sign) * std::pow(2.0, static_cast<int>(exponent) - bias) * (1.0 + static_cast<double>(mantissa) / (1 << exponentShift));
+    std::println("Verify  : {:.10f}", check);
 }
 
 // Why 0.1 + 0.2 != 0.3
 void floatPrecision() {
-    float a = 0.1f, b = 0.2f;
-    printf("\\n0.1f + 0.2f = %.20f\\n", a + b); // NOT exactly 0.3
-    printf("0.3f        = %.20f\\n", 0.3f);
+    float valA = 0.1f, valB = 0.2f;
+    std::println("\n0.1f + 0.2f = {:.20f}", valA + valB);  // NOT exactly 0.3
+    std::println("0.3f        = {:.20f}", 0.3f);
 
     // Correct way: compare with epsilon
-    float eps = 1e-6f;
-    bool equal = fabs((a + b) - 0.3f) < eps;
-    printf("Equal within 1e-6: %s\\n", equal ? "true" : "false");
+    constexpr float epsilonValue = 1e-6f;
+    bool  isEqual = std::fabs((valA + valB) - 0.3f) < epsilonValue;
+    std::println("Equal within 1e-6: {}", isEqual ? "true" : "false");
 }
 
 // double: 64 bits (1+11+52)
-void dissectDouble(double d) {
+void dissectDouble(double doubleVal) {
     uint64_t bits;
-    memcpy(&bits, &d, 8);
-    uint64_t sign     =  bits >> 63;
-    uint64_t exponent = (bits >> 52) & 0x7FF;
-    uint64_t mantissa =  bits & 0x000FFFFFFFFFFFFFull;
-    printf("\\ndouble %.4f: sign=%llu exp=%llu (actual %lld) mantissa=0x%013llX\\n",
-           d, sign, exponent, (long long)exponent - 1023, mantissa);
+    constexpr size_t doubleSize = 8;
+    std::memcpy(&bits, &doubleVal, doubleSize);
+
+    constexpr int signShift = 63;
+    constexpr int exponentShift = 52;
+    constexpr uint64_t exponentMask = 0x7FF;
+    constexpr uint64_t mantissaMask = 0x000FFFFFFFFFFFFFull;
+    constexpr int bias = 1023;
+
+    uint64_t sign     = bits >> signShift;
+    uint64_t exponent = (bits >> exponentShift) & exponentMask;
+    uint64_t mantissa = bits & mantissaMask;
+    std::println(
+        "\ndouble {:.4f}: sign={} exp={} (actual {}) mantissa=0x{:013X}",
+        doubleVal,
+        sign,
+        exponent,
+        static_cast<long long>(exponent) - bias,
+        mantissa
+    );
 }
 
 // Special IEEE 754 bit patterns
 void specials() {
-    float inf  =  1.0f / 0.0f;
-    float nan  =  0.0f / 0.0f;
-    float ninf = -1.0f / 0.0f;
-    uint32_t b1, b2, b3;
-    memcpy(&b1, &inf,  4);
-    memcpy(&b2, &nan,  4);
-    memcpy(&b3, &ninf, 4);
-    printf("\\n+Inf = 0x%08X   -Inf = 0x%08X   NaN = 0x%08X\\n", b1, b3, b2);
+    float    inf  = 1.0f / 0.0f;
+    float    nan  = 0.0f / 0.0f;
+    float    ninf = -1.0f / 0.0f;
+    uint32_t bitsInf, bitsNaN, bitsNinf;
+    constexpr size_t floatSize = 4;
+    std::memcpy(&bitsInf, &inf, floatSize);
+    std::memcpy(&bitsNaN, &nan, floatSize);
+    std::memcpy(&bitsNinf, &ninf, floatSize);
+    std::println("\n+Inf = 0x{:08X}   -Inf = 0x{:08X}   NaN = 0x{:08X}", bitsInf, bitsNinf, bitsNaN);
     // +Inf = 0x7F800000  (exp=0xFF, mantissa=0)
     // NaN  = 0x7FC00000  (exp=0xFF, mantissa != 0)
 }
@@ -904,7 +939,8 @@ int main() {
     floatPrecision();
     dissectDouble(3.14159265358979);
     specials();
-}`))
+}
+`))
 
         + callout('🧠',
           '<strong>Key insight:</strong> Floating-point numbers are <em>approximations</em> of real numbers. '
@@ -950,114 +986,128 @@ int main() {
           + '</div>')
 
         + section('C++ Code', codeBlock(
-          `#include <iostream>
-#include <vector>
-#include <cstdint>
+          `#include <cstdint>
 #include <fstream>
-using namespace std;
+#include <iostream>
+#include <vector>
+#include <print>
 
-// Pixel struct: exactly 3 bytes, no compiler padding 
+// Pixel struct: exactly 3 bytes, no compiler padding
 #pragma pack(push, 1)
-struct RGB  { uint8_t r, g, b; };
-struct RGBA { uint8_t r, g, b, a; };
+struct RGB {
+    uint8_t red, green, blue;
+};
+struct RGBA {
+    uint8_t red, green, blue, alpha;
+};
 #pragma pack(pop)
 
-// Raw image: a flat array of pixels in row-major order 
+// Raw image: a flat array of pixels in row-major order
 struct Image {
-    uint32_t width, height;
-    vector<RGB> pixels;  // pixel at (x,y) = pixels[y * width + x]
+    uint32_t    width, height;
+    std::vector<RGB> pixels;  // pixel at (x,y) = pixels[y * width + x]
 
-    Image(uint32_t w, uint32_t h) : width(w), height(h), pixels(w * h) {}
+    Image(uint32_t widthVal, uint32_t heightVal) : width(widthVal), height(heightVal), pixels(widthVal * heightVal) {}
 
-    RGB&       at(uint32_t x, uint32_t y)       { return pixels[y * width + x]; }
-    const RGB& at(uint32_t x, uint32_t y) const { return pixels[y * width + x]; }
+    RGB&       at(uint32_t posX, uint32_t posY) { return pixels[posY * width + posX]; }
+    const RGB& at(uint32_t posX, uint32_t posY) const { return pixels[posY * width + posX]; }
 
-    const uint8_t* rawBytes() const {
-        return reinterpret_cast<const uint8_t*>(pixels.data());
-    }
-    size_t byteSize() const { return width * height * sizeof(RGB); } // 3 per pixel
+    const uint8_t* rawBytes() const { return reinterpret_cast<const uint8_t*>(pixels.data()); }
+    size_t         byteSize() const { return width * height * sizeof(RGB); }  // 3 per pixel
 };
 
 // Show how pixel (x,y) maps to a byte offset
-void showLayout(const Image& img, uint32_t x, uint32_t y) {
-    size_t offset = (y * img.width + x) * sizeof(RGB);
-    const RGB& px = img.at(x, y);
-    printf("Pixel (%u,%u) -> byte offset %zu from image start\\n", x, y, offset);
-    printf("  R=0x%02X  G=0x%02X  B=0x%02X\\n", px.r, px.g, px.b);
-    printf("  &R=%p  &G=%p  &B=%p\\n",
-           (void*)&px.r, (void*)&px.g, (void*)&px.b);
+void showLayout(const Image& image, uint32_t posX, uint32_t posY) {
+    size_t     offset = (posY * image.width + posX) * sizeof(RGB);
+    const RGB& pixel     = image.at(posX, posY);
+    std::println("Pixel ({},{}) -> byte offset {} from image start", posX, posY, offset);
+    std::println("  R=0x{:02X}  G=0x{:02X}  B=0x{:02X}", pixel.red, pixel.green, pixel.blue);
+    std::println("  &R={}  &G={}  &B={}", static_cast<const void*>(&pixel.red), static_cast<const void*>(&pixel.green), static_cast<const void*>(&pixel.blue));
     // Note: &G == &R + 1  and  &B == &R + 2  (packed, no gaps)
 }
 
-// Grayscale: collapse 3 bytes per pixel to 1 
-void toGrayscale(const Image& src, vector<uint8_t>& out) {
-    out.resize(src.width * src.height);
-    for (size_t i = 0; i < src.pixels.size(); ++i) {
-        const RGB& p = src.pixels[i];
+// Grayscale: collapse 3 bytes per pixel to 1
+void toGrayscale(const Image& source, std::vector<uint8_t>& output) {
+    output.resize(source.width * source.height);
+    for (size_t index = 0; index < source.pixels.size(); ++index) {
+        const RGB& pixel = source.pixels[index];
         // ITU-R BT.601 perceptual luma formula
-        out[i] = (uint8_t)(0.299f*p.r + 0.587f*p.g + 0.114f*p.b);
+        constexpr float redWeight = 0.299f;
+        constexpr float greenWeight = 0.587f;
+        constexpr float blueWeight = 0.114f;
+        output[index] = static_cast<uint8_t>(redWeight * pixel.red + greenWeight * pixel.green + blueWeight * pixel.blue);
     }
 }
 
-// Write uncompressed BMP to disk 
-void writeBMP(const Image& img, const char* path) {
-    #pragma pack(push, 1)
+// Write uncompressed BMP to disk
+void writeBMP(const Image& image, const char* filePath) {
+#pragma pack(push, 1)
     struct BMPHeader {
-        char     sig[2]     = {'B','M'};
+        char     signature[2] = {'B', 'M'};
         uint32_t fileSize;
-        uint16_t reserved1  = 0, reserved2 = 0;
+        uint16_t reserved1 = 0, reserved2 = 0;
         uint32_t dataOffset = 54;
         uint32_t infoSize   = 40;
-        int32_t  w, h;
-        uint16_t planes     = 1, bpp = 24;
-        uint32_t comp       = 0, imgSize = 0;
-        int32_t  xppm = 2835, yppm = 2835;
-        uint32_t clrs = 0, iclrs = 0;
+        int32_t  width, height;
+        uint16_t planes = 1, bitsPerPixel = 24;
+        uint32_t compression = 0, imageSize = 0;
+        int32_t  xPixelsPerMeter = 2835, yPixelsPerMeter = 2835;
+        uint32_t colorsUsed = 0, importantColors = 0;
     };
-    #pragma pack(pop)
+#pragma pack(pop)
 
     // BMP rows must be 4-byte aligned
-    uint32_t stride = (img.width * 3 + 3) & ~3;
-    BMPHeader hdr;
-    hdr.w        = img.width;
-    hdr.h        = -(int32_t)img.height; // negative = top-down row order
-    hdr.fileSize = 54 + stride * img.height;
+    constexpr uint32_t alignmentMask = 3;
+    uint32_t  stride = (image.width * 3 + alignmentMask) & ~alignmentMask;
+    BMPHeader header;
+    header.width        = static_cast<int32_t>(image.width);
+    header.height       = -static_cast<int32_t>(image.height);  // negative = top-down row order
+    constexpr uint32_t headerSize = 54;
+    header.fileSize = headerSize + stride * image.height;
 
-    ofstream f(path, ios::binary);
-    f.write(reinterpret_cast<char*>(&hdr), sizeof(hdr));
+    std::ofstream file(filePath, std::ios::binary);
+    file.write(reinterpret_cast<char*>(&header), sizeof(header));
 
-    vector<uint8_t> row(stride, 0);
-    for (uint32_t y = 0; y < img.height; ++y) {
-        for (uint32_t x = 0; x < img.width; ++x) {
-            const RGB& px = img.at(x, y);
-            row[x*3+0] = px.b;  // BMP stores in BGR order, not RGB!
-            row[x*3+1] = px.g;
-            row[x*3+2] = px.r;
+    std::vector<uint8_t> row(stride, 0);
+    for (uint32_t posY = 0; posY < image.height; ++posY) {
+        for (uint32_t posX = 0; posX < image.width; ++posX) {
+            const RGB& pixel  = image.at(posX, posY);
+            constexpr int blueOffset = 0;
+            constexpr int greenOffset = 1;
+            constexpr int redOffset = 2;
+            row[posX * 3 + blueOffset] = pixel.blue;  // BMP stores in BGR order, not RGB!
+            row[posX * 3 + greenOffset] = pixel.green;
+            row[posX * 3 + redOffset] = pixel.red;
         }
-        f.write(reinterpret_cast<char*>(row.data()), stride);
+        file.write(reinterpret_cast<char*>(row.data()), stride);
     }
 }
 
 int main() {
-    Image img(4, 2);
-    img.at(0,0) = {255,   0,   0};  img.at(1,0) = {  0, 255,   0};
-    img.at(2,0) = {  0,   0, 255};  img.at(3,0) = {255, 255,   0};
-    img.at(0,1) = {255,   0, 255};  img.at(1,1) = {  0, 255, 255};
-    img.at(2,1) = {128, 128, 128};  img.at(3,1) = {255, 255, 255};
+    Image image(4, 2);
+    image.at(0, 0) = {255, 0, 0};
+    image.at(1, 0) = {0, 255, 0};
+    image.at(2, 0) = {0, 0, 255};
+    image.at(3, 0) = {255, 255, 0};
+    image.at(0, 1) = {255, 0, 255};
+    image.at(1, 1) = {0, 255, 255};
+    image.at(2, 1) = {128, 128, 128};
+    image.at(3, 1) = {255, 255, 255};
 
-    printf("Total raw bytes: %zu\\n", img.byteSize()); // 4*2*3 = 24
+    std::println("Total raw bytes: {}", image.byteSize());  // 4*2*3 = 24
 
-    showLayout(img, 2, 1);
+    showLayout(image, 2, 1);
 
-    vector<uint8_t> gray;
-    toGrayscale(img, gray);
-    printf("Luma values: ");
-    for (uint8_t v : gray) printf("%3u ", v);
-    printf("\\n");
+    std::vector<uint8_t> gray;
+    toGrayscale(image, gray);
+    std::print("Luma values: ");
+    for (uint8_t value : gray) std::print("{:3} ", value);
+    std::println();
 
-    writeBMP(img, "output.bmp");
-    printf("Wrote output.bmp (open in any image viewer)\\n");
-}`))
+    writeBMP(image, "output.bmp");
+    std::println("Wrote output.bmp (open in any image viewer)");
+}
+`))
 
         + callout('🧠',
           '<strong>Key insight:</strong> An image is literally an array of integers. '
@@ -1110,121 +1160,142 @@ int main() {
           + '</div>')
 
         + section('C++ Code', codeBlock(
-          `#include <iostream>
-#include <vector>
-#include <cstdint>
+          `#include <algorithm>
 #include <cmath>
+#include <cstdint>
 #include <fstream>
-using namespace std;
+#include <iostream>
+#include <vector>
+#include <print>
+
+constexpr double PI_CONST = 3.14159265358979323846;
 
 // PCM Audio buffer: the raw memory layout of sound
 struct AudioBuffer {
-    uint32_t sampleRate;     // e.g. 44100 samples per second
-    uint16_t channels;       // 1 = mono,  2 = stereo
-    uint16_t bitsPerSample;  // 8, 16, 24, or 32
-    vector<int16_t> samples; // stereo layout: L0 R0 L1 R1 L2 R2 ...
+    uint32_t        sampleRate;     // e.g. 44100 samples per second
+    uint16_t        channels;       // 1 = mono,  2 = stereo
+    uint16_t        bitsPerSample;  // 8, 16, 24, or 32
+    std::vector<int16_t> samples;        // stereo layout: L0 R0 L1 R1 L2 R2 ...
 
-    double duration() const {
-        return (double)samples.size() / (sampleRate * channels);
-    }
+    double duration() const { return static_cast<double>(samples.size()) / (sampleRate * channels); }
 };
 
-// Generate a pure sine wave 
-AudioBuffer sineWave(double freq, double durSec,
-                     uint32_t sampleRate = 44100) {
-    AudioBuffer buf;
-    buf.sampleRate    = sampleRate;
-    buf.channels      = 1;
-    buf.bitsPerSample = 16;
-    buf.samples.resize((size_t)(durSec * sampleRate));
+// Generate a pure sine wave
+AudioBuffer sineWave(double frequency, double durationSec, uint32_t sampleRate = 44100) {
+    AudioBuffer buffer;
+    buffer.sampleRate    = sampleRate;
+    buffer.channels      = 1;
+    buffer.bitsPerSample = 16;
+    buffer.samples.resize(static_cast<size_t>(durationSec * sampleRate));
 
-    for (size_t i = 0; i < buf.samples.size(); ++i) {
-        double t     = (double)i / sampleRate;
-        double angle = 2.0 * M_PI * freq * t;
-        buf.samples[i] = (int16_t)(sin(angle) * 32000.0);
+    for (size_t index = 0; index < buffer.samples.size(); ++index) {
+        double timeValue       = static_cast<double>(index) / sampleRate;
+        double angle   = 2.0 * PI_CONST * frequency * timeValue;
+        constexpr double amplitude = 32000.0;
+        buffer.samples[index] = static_cast<int16_t>(std::sin(angle) * amplitude);
         // int16_t range: -32768 to +32767
     }
-    return buf;
+    return buffer;
 }
 
-// Show the raw bytes of the first N samples 
-void inspectMemory(const AudioBuffer& buf, int n = 4) {
-    printf("\\nFirst %d samples (each = 2 bytes = int16_t):\\n", n);
-    for (int i = 0; i < n; ++i) {
-        int16_t s = buf.samples[i];
-        uint8_t* b = reinterpret_cast<uint8_t*>(&s);
-        printf("  sample[%d] = %6d  bytes: %02X %02X  addr: %p\\n",
-               i, s, b[0], b[1], (void*)&buf.samples[i]);
+// Show the raw bytes of the first N samples
+void inspectMemory(const AudioBuffer& buffer, int count = 4) {
+    std::println("\nFirst {} samples (each = 2 bytes = int16_t):", count);
+    for (int index = 0; index < count; ++index) {
+        int16_t  sample = buffer.samples[index];
+        uint8_t* bytePtr = reinterpret_cast<uint8_t*>(&sample);
+        std::println(
+            "  sample[{}] = {:6}  bytes: {:02X} {:02X}  addr: {}",
+            index,
+            sample,
+            bytePtr[0],
+            bytePtr[1],
+            static_cast<const void*>(&buffer.samples[index])
+        );
     }
-    printf("Total audio bytes: %zu\\n", buf.samples.size() * 2);
+    constexpr size_t bytesPerSample = 2;
+    std::println("Total audio bytes: {}", buffer.samples.size() * bytesPerSample);
 }
 
 // Stereo: interleave two mono buffers
 AudioBuffer toStereo(const AudioBuffer& left, const AudioBuffer& right) {
-    AudioBuffer out;
-    out.sampleRate    = left.sampleRate;
-    out.channels      = 2;
-    out.bitsPerSample = 16;
-    size_t n = min(left.samples.size(), right.samples.size());
-    out.samples.reserve(n * 2);
-    for (size_t i = 0; i < n; ++i) {
-        out.samples.push_back(left.samples[i]);   // Left channel
-        out.samples.push_back(right.samples[i]);  // Right channel
+    AudioBuffer output;
+    output.sampleRate    = left.sampleRate;
+    output.channels      = 2;
+    output.bitsPerSample = 16;
+    size_t count          = std::min(left.samples.size(), right.samples.size());
+    constexpr int channelsCount = 2;
+    output.samples.reserve(count * channelsCount);
+    for (size_t index = 0; index < count; ++index) {
+        output.samples.push_back(left.samples[index]);   // Left channel
+        output.samples.push_back(right.samples[index]);  // Right channel
     }
     // Byte layout: [L0 lo][L0 hi][R0 lo][R0 hi][L1 lo][L1 hi]...
-    return out;
+    return output;
 }
 
 // Write a WAV file (44-byte header + raw PCM data)
-void writeWAV(const AudioBuffer& buf, const char* path) {
-    #pragma pack(push, 1)
+void writeWAV(const AudioBuffer& buffer, const char* filePath) {
+#pragma pack(push, 1)
     struct WAVHeader {
-        char     riff[4]      = {'R','I','F','F'};
+        char     riff[4] = {'R', 'I', 'F', 'F'};
         uint32_t chunkSize;
-        char     wave[4]      = {'W','A','V','E'};
-        char     fmt[4]       = {'f','m','t',' '};
+        char     wave[4]      = {'W', 'A', 'V', 'E'};
+        char     fmt[4]       = {'f', 'm', 't', ' '};
         uint32_t subChunkSize = 16;
         uint16_t audioFormat  = 1;  // 1 = PCM (uncompressed)
         uint16_t numChannels;
         uint32_t sampleRate;
-        uint32_t byteRate;          // sampleRate * channels * bitsPerSample/8
-        uint16_t blockAlign;        // channels * bitsPerSample/8
+        uint32_t byteRate;    // sampleRate * channels * bitsPerSample/8
+        uint16_t blockAlign;  // channels * bitsPerSample/8
         uint16_t bitsPerSample;
-        char     data[4]      = {'d','a','t','a'};
+        char     data[4] = {'d', 'a', 't', 'a'};
         uint32_t dataSize;
     };
-    #pragma pack(pop)
+#pragma pack(pop)
 
-    uint32_t dataBytes    = buf.samples.size() * sizeof(int16_t);
-    WAVHeader hdr;
-    hdr.numChannels   = buf.channels;
-    hdr.sampleRate    = buf.sampleRate;
-    hdr.bitsPerSample = buf.bitsPerSample;
-    hdr.blockAlign    = buf.channels * buf.bitsPerSample / 8;
-    hdr.byteRate      = buf.sampleRate * hdr.blockAlign;
-    hdr.dataSize      = dataBytes;
-    hdr.chunkSize     = 36 + dataBytes;
+    uint32_t  dataBytes = static_cast<uint32_t>(buffer.samples.size() * sizeof(int16_t));
+    WAVHeader header;
+    header.numChannels   = buffer.channels;
+    header.sampleRate    = buffer.sampleRate;
+    header.bitsPerSample = buffer.bitsPerSample;
+    constexpr int bitsPerByte = 8;
+    header.blockAlign    = static_cast<uint16_t>(buffer.channels * buffer.bitsPerSample / bitsPerByte);
+    header.byteRate      = buffer.sampleRate * header.blockAlign;
+    header.dataSize      = dataBytes;
+    constexpr uint32_t headerOffset = 36;
+    header.chunkSize     = headerOffset + dataBytes;
 
-    ofstream f(path, ios::binary);
-    f.write(reinterpret_cast<char*>(&hdr), sizeof(hdr));
-    f.write(reinterpret_cast<const char*>(buf.samples.data()), dataBytes);
+    std::ofstream file(filePath, std::ios::binary);
+    file.write(reinterpret_cast<char*>(&header), sizeof(header));
+    file.write(reinterpret_cast<const char*>(buffer.samples.data()), dataBytes);
 }
 
 int main() {
-    AudioBuffer tone = sineWave(440.0, 0.01); // A-440 Hz, 10ms
+    constexpr double freqA440 = 440.0;
+    constexpr double duration10ms = 0.01;
+    AudioBuffer tone = sineWave(freqA440, duration10ms);  // A-440 Hz, 10ms
     inspectMemory(tone, 4);
 
     // A musical chord: A4 + C#5 in stereo
-    AudioBuffer left  = sineWave(440.0, 1.0);
-    AudioBuffer right = sineWave(554.4, 1.0);
+    constexpr double duration1s = 1.0;
+    constexpr double freqCSharp5 = 554.4;
+    AudioBuffer left  = sineWave(freqA440, duration1s);
+    AudioBuffer right = sineWave(freqCSharp5, duration1s);
     AudioBuffer chord = toStereo(left, right);
 
-    printf("\\nStereo: %zu samples, %zu bytes, %.2f sec\\n",
-           chord.samples.size(), chord.samples.size()*2, chord.duration());
+    constexpr size_t bytesPerSample = 2;
+    std::println(
+        "\nStereo: {} samples, {} bytes, {:.2f} sec",
+        chord.samples.size(),
+        chord.samples.size() * bytesPerSample,
+        chord.duration()
+    );
 
     writeWAV(chord, "chord.wav");
-    printf("Wrote chord.wav — open in Audacity or any audio player\\n");
-}`))
+    std::println("Wrote chord.wav — open in Audacity or any audio player");
+}
+`))
 
         + callout('🧠',
           '<strong>Key insight:</strong> Sound in memory is just a 1D array of integers sampled at a fixed rate. '
@@ -1261,96 +1332,121 @@ int main() {
           + '<div class="mem-cells" style="margin-top:10px">' + yCells + cbCells + crCells + '</div>')
 
         + section('C++ Code', codeBlock(
-          `#include <iostream>
-#include <vector>
+          `#include <algorithm>
 #include <cstdint>
 #include <fstream>
-using namespace std;
+#include <iostream>
+#include <vector>
+#include <print>
 
 // YCbCr 4:2:0 frame (NV12 / planar layout)
 struct YUVFrame {
-    uint32_t width, height;
-    vector<uint8_t> Y;   // luma:        width * height bytes
-    vector<uint8_t> Cb;  // blue-chroma: (width/2) * (height/2) bytes
-    vector<uint8_t> Cr;  // red-chroma:  (width/2) * (height/2) bytes
+    uint32_t        width, height;
+    std::vector<uint8_t> luma;   // Y:        width * height bytes
+    std::vector<uint8_t> chromaB;  // Cb: (width/2) * (height/2) bytes
+    std::vector<uint8_t> chromaR;  // Cr:  (width/2) * (height/2) bytes
 
-    YUVFrame(uint32_t w, uint32_t h)
-      : width(w), height(h),
-        Y(w * h, 128), Cb((w/2)*(h/2), 128), Cr((w/2)*(h/2), 128) {}
+    YUVFrame(uint32_t widthVal, uint32_t heightVal)
+        : width(widthVal),
+          height(heightVal),
+          luma(widthVal * heightVal, 128),
+          chromaB((widthVal / 2) * (heightVal / 2), 128),
+          chromaR((widthVal / 2) * (heightVal / 2), 128) {}
 
-    size_t byteSize() const { return Y.size() + Cb.size() + Cr.size(); }
+    size_t byteSize() const { return luma.size() + chromaB.size() + chromaR.size(); }
 };
 
 // RGB <-> YCbCr (ITU-R BT.601)
-struct RGB { uint8_t r, g, b; };
+struct RGB {
+    uint8_t red, green, blue;
+};
 
-void rgbToYCbCr(const RGB& p, uint8_t& Y, uint8_t& Cb, uint8_t& Cr) {
-    Y  = (uint8_t)( 16 + 0.257f*p.r + 0.504f*p.g + 0.098f*p.b);
-    Cb = (uint8_t)(128 - 0.148f*p.r - 0.291f*p.g + 0.439f*p.b);
-    Cr = (uint8_t)(128 + 0.439f*p.r - 0.368f*p.g - 0.071f*p.b);
+void rgbToYCbCr(const RGB& pixel, uint8_t& luma, uint8_t& chromaB, uint8_t& chromaR) {
+    constexpr float lumaBase = 16.0f;
+    constexpr float chromaBase = 128.0f;
+    luma  = static_cast<uint8_t>(lumaBase + 0.257f * pixel.red + 0.504f * pixel.green + 0.098f * pixel.blue);
+    chromaB = static_cast<uint8_t>(chromaBase - 0.148f * pixel.red - 0.291f * pixel.green + 0.439f * pixel.blue);
+    chromaR = static_cast<uint8_t>(chromaBase + 0.439f * pixel.red - 0.368f * pixel.green - 0.071f * pixel.blue);
 }
 
-RGB yCbCrToRGB(uint8_t Y, uint8_t Cb, uint8_t Cr) {
-    float y = Y-16, cb = Cb-128, cr = Cr-128;
-    auto clamp = [](float v) -> uint8_t { return v<0?0:v>255?255:(uint8_t)v; };
-    return { clamp(1.164f*y + 1.596f*cr),
-             clamp(1.164f*y - 0.392f*cb - 0.813f*cr),
-             clamp(1.164f*y + 2.017f*cb) };
+RGB yCbCrToRGB(uint8_t luma, uint8_t chromaB, uint8_t chromaR) {
+    constexpr float lumaOffset = 16.0f;
+    constexpr float chromaOffset = 128.0f;
+    float yVal = luma - lumaOffset, cbVal = chromaB - chromaOffset, crVal = chromaR - chromaOffset;
+    auto  clamp = [](float val) -> uint8_t { 
+        constexpr float maxVal = 255.0f;
+        return val < 0 ? 0 : val > maxVal ? 255 : static_cast<uint8_t>(val); 
+    };
+    return {
+        clamp(1.164f * yVal + 1.596f * crVal),
+        clamp(1.164f * yVal - 0.392f * cbVal - 0.813f * crVal),
+        clamp(1.164f * yVal + 2.017f * cbVal)
+    };
 }
 
 // A video is a vector of frames
 struct RawVideo {
-    uint32_t width, height, fps;
-    vector<YUVFrame> frames;
+    uint32_t         width, height, fps;
+    std::vector<YUVFrame> frames;
 
-    RawVideo(uint32_t w, uint32_t h, uint32_t f) : width(w), height(h), fps(f) {}
+    RawVideo(uint32_t widthVal, uint32_t heightVal, uint32_t fpsVal) : width(widthVal), height(heightVal), fps(fpsVal) {}
 
-    double duration()   const { return (double)frames.size() / fps; }
-    size_t totalBytes() const {
-        return frames.empty() ? 0 : frames[0].byteSize() * frames.size();
-    }
+    double duration() const { return static_cast<double>(frames.size()) / fps; }
+    size_t totalBytes() const { return frames.empty() ? 0 : frames[0].byteSize() * frames.size(); }
 };
 
-// Write raw YUV420 file 
-void writeYUV(const RawVideo& vid, const char* path) {
+// Write raw YUV420 file
+void writeYUV(const RawVideo& video, const char* filePath) {
     // Playback: ffplay -f rawvideo -pixel_format yuv420p -video_size WxH file.yuv
-    ofstream f(path, ios::binary);
-    for (const auto& frame : vid.frames) {
-        f.write((char*)frame.Y.data(),  frame.Y.size());
-        f.write((char*)frame.Cb.data(), frame.Cb.size());
-        f.write((char*)frame.Cr.data(), frame.Cr.size());
+    std::ofstream file(filePath, std::ios::binary);
+    for (const auto& frame : video.frames) {
+        file.write(reinterpret_cast<const char*>(frame.luma.data()), frame.luma.size());
+        file.write(reinterpret_cast<const char*>(frame.chromaB.data()), frame.chromaB.size());
+        file.write(reinterpret_cast<const char*>(frame.chromaR.data()), frame.chromaR.size());
     }
 }
 
-void printStats(const RawVideo& vid) {
-    size_t rgb = vid.width * vid.height * 3 * vid.frames.size();
-    printf("Video   : %ux%u @ %u fps\\n", vid.width, vid.height, vid.fps);
-    printf("Frames  : %zu   Duration: %.2fs\\n", vid.frames.size(), vid.duration());
-    printf("YUV raw : %.1f MB\\n", vid.totalBytes() / 1e6);
-    printf("RGB raw : %.1f MB  (YUV saves %.0f%%)\\n",
-           rgb/1e6, (1.0 - (double)vid.totalBytes()/rgb)*100);
+void printStats(const RawVideo& video) {
+    constexpr int bytesPerPixelRGB = 3;
+    size_t rgbTotal = video.width * video.height * bytesPerPixelRGB * video.frames.size();
+    std::println("Video   : {}x{} @ {} fps", video.width, video.height, video.fps);
+    std::println("Frames  : {}   Duration: {:.2f}s", video.frames.size(), video.duration());
+    constexpr double MB_DIVISOR = 1e6;
+    std::println("YUV raw : {:.1f} MB", video.totalBytes() / MB_DIVISOR);
+    std::println(
+        "RGB raw : {:.1f} MB  (YUV saves {:.0f}%)",
+        rgbTotal / MB_DIVISOR,
+        (1.0 - static_cast<double>(video.totalBytes()) / rgbTotal) * 100
+    );
 }
 
 int main() {
-    RawVideo vid(320, 240, 30);
+    constexpr uint32_t width = 320;
+    constexpr uint32_t height = 240;
+    constexpr uint32_t fps = 30;
+    RawVideo video(width, height, fps);
 
-    for (uint32_t f = 0; f < 90; ++f) {  // 3 seconds @ 30fps
-        YUVFrame frame(320, 240);
-        float t = (float)f / 90;
-        RGB color = { (uint8_t)(255*t), (uint8_t)(255*(1-t)), 128 };
-        uint8_t Y, Cb, Cr;
-        rgbToYCbCr(color, Y, Cb, Cr);
-        fill(frame.Y.begin(),  frame.Y.end(),  Y);
-        fill(frame.Cb.begin(), frame.Cb.end(), Cb);
-        fill(frame.Cr.begin(), frame.Cr.end(), Cr);
-        vid.frames.push_back(move(frame));
+    constexpr int totalFrames = 90;
+    for (uint32_t index = 0; index < totalFrames; ++index) {  // 3 seconds @ 30fps
+        YUVFrame frame(width, height);
+        float    timeFactor     = static_cast<float>(index) / totalFrames;
+        constexpr uint8_t maxColor = 255;
+        constexpr uint8_t halfColor = 128;
+        RGB      color = {static_cast<uint8_t>(maxColor * timeFactor), static_cast<uint8_t>(maxColor * (1.0f - timeFactor)), halfColor};
+        uint8_t  luma, chromaB, chromaR;
+        rgbToYCbCr(color, luma, chromaB, chromaR);
+        std::fill(frame.luma.begin(), frame.luma.end(), luma);
+        std::fill(frame.chromaB.begin(), frame.chromaB.end(), chromaB);
+        std::fill(frame.chromaR.begin(), frame.chromaR.end(), chromaR);
+        video.frames.push_back(std::move(frame));
     }
 
-    printStats(vid);
-    writeYUV(vid, "output.yuv");
-    printf("\\nWrote output.yuv\\n");
-    printf("Play: ffplay -f rawvideo -pixel_format yuv420p -video_size 320x240 output.yuv\\n");
-}`))
+    printStats(video);
+    writeYUV(video, "output.yuv");
+    std::println("\nWrote output.yuv");
+    std::println("Play: ffplay -f rawvideo -pixel_format yuv420p -video_size 320x240 output.yuv");
+}
+`))
 
         + callout('🧠',
           '<strong>Key insight:</strong> H.264 compression works by storing only the <em>differences</em> '
@@ -1393,108 +1489,129 @@ int main() {
         + section('Container memory layout (simplified MP4)', packetsHtml)
 
         + section('C++ Code', codeBlock(
-          `#include <iostream>
-#include <vector>
+          `#include <algorithm>
 #include <cstdint>
-#include <algorithm>
 #include <fstream>
-using namespace std;
+#include <iostream>
+#include <vector>
+#include <print>
 
-// Packet: the indivisible unit of A/V data 
+// Packet: the indivisible unit of A/V data
 enum class StreamType : uint8_t { VIDEO = 0, AUDIO = 1 };
 
 struct Packet {
     StreamType      type;
-    int64_t         pts;      // presentation timestamp (microseconds)
-    int64_t         dts;      // decode timestamp (differs for B-frames)
+    int64_t         pts;  // presentation timestamp (microseconds)
+    int64_t         dts;  // decode timestamp (differs for B-frames)
     bool            keyframe;
-    vector<uint8_t> data;     // compressed payload (H.264 NAL / AAC frame)
+    std::vector<uint8_t> data;  // compressed payload (H.264 NAL / AAC frame)
 
-    size_t serializedSize() const { return 22 + data.size(); }
+    size_t serializedSize() const { 
+        constexpr size_t headerSize = 22;
+        return headerSize + data.size(); 
+    }
     // 22 = 1 type + 8 pts + 8 dts + 1 flags + 4 size
 };
 
-// Muxer: collect and interleave A/V packets 
+// Muxer: collect and interleave A/V packets
 struct AVMuxer {
-    vector<Packet> packets;
+    std::vector<Packet> packets;
 
-    void addVideo(int64_t pts, bool key, vector<uint8_t> payload) {
-        packets.push_back({ StreamType::VIDEO, pts, pts, key, move(payload) });
+    void addVideo(int64_t pts, bool key, std::vector<uint8_t> payload) {
+        packets.push_back({StreamType::VIDEO, pts, pts, key, std::move(payload)});
     }
-    void addAudio(int64_t pts, vector<uint8_t> payload) {
-        packets.push_back({ StreamType::AUDIO, pts, pts, true, move(payload) });
+    void addAudio(int64_t pts, std::vector<uint8_t> payload) {
+        packets.push_back({StreamType::AUDIO, pts, pts, true, std::move(payload)});
     }
     // Sort all packets by decode timestamp before writing
     void finalize() {
-        sort(packets.begin(), packets.end(),
-             [](const Packet& a, const Packet& b){ return a.dts < b.dts; });
+        std::sort(packets.begin(), packets.end(), [](const Packet& pktA, const Packet& pktB) {
+            return pktA.dts < pktB.dts;
+        });
     }
     void printTable() const {
-        size_t total = 0;
-        printf("\\n%-10s %-10s %-6s %-10s\\n", "TYPE","PTS(ms)","KEY","BYTES");
-        puts("──────────────────────────────────────");
-        for (const auto& p : packets) {
-            printf("%-10s %-10lld %-6s %-10zu\\n",
-                p.type==StreamType::VIDEO?"VIDEO":"AUDIO",
-                (long long)(p.pts/1000), p.keyframe?"yes":"no",
-                p.serializedSize());
-            total += p.serializedSize();
+        size_t totalBytes = 0;
+        std::println("\n{:<10} {:<10} {:<6} {:<10}", "TYPE", "PTS(ms)", "KEY", "BYTES");
+        std::println("──────────────────────────────────────");
+        for (const auto& packet : packets) {
+            constexpr int msDivisor = 1000;
+            std::println(
+                "{:<10} {:<10} {:<6} {:<10}",
+                packet.type == StreamType::VIDEO ? "VIDEO" : "AUDIO",
+                static_cast<long long>(packet.pts / msDivisor),
+                packet.keyframe ? "yes" : "no",
+                packet.serializedSize()
+            );
+            totalBytes += packet.serializedSize();
         }
-        printf("\\nTotal container size: %zu bytes\\n", total);
+        std::println("\nTotal container size: {} bytes", totalBytes);
     }
 };
 
 // Demuxer: split container back into separate streams
 struct AVDemuxer {
-    vector<Packet> video, audio;
-    void demux(const vector<Packet>& src) {
-        for (const auto& p : src)
-            (p.type==StreamType::VIDEO ? video : audio).push_back(p);
+    std::vector<Packet> video, audio;
+    void           demux(const std::vector<Packet>& source) {
+        for (const auto& packet : source) (packet.type == StreamType::VIDEO ? video : audio).push_back(packet);
     }
 };
 
-// A/V sync: keep video and audio aligned during playback 
+// A/V sync: keep video and audio aligned during playback
 struct AVClock {
     int64_t videoPTS = 0, audioPTS = 0;
-    void onVideo(int64_t pts) { videoPTS = pts; }
-    void onAudio(int64_t pts) { audioPTS = pts; }
-    int64_t videoLead()     const { return videoPTS - audioPTS; } // microseconds
-    bool shouldDelay()      const { return videoLead() >   50000; } // video > 50ms ahead
-    bool shouldDropFrame()  const { return videoLead() < -100000; } // video > 100ms behind
+    void    onVideo(int64_t pts) { videoPTS = pts; }
+    void    onAudio(int64_t pts) { audioPTS = pts; }
+    int64_t videoLead() const { return videoPTS - audioPTS; }          // microseconds
+    bool    shouldDelay() const { 
+        constexpr int delayThreshold = 50000; // 50ms
+        return videoLead() > delayThreshold; 
+    }        
+    bool    shouldDropFrame() const { 
+        constexpr int dropThreshold = -100000; // 100ms
+        return videoLead() < dropThreshold; 
+    }  
 };
 
-// Write a minimal container file 
-void writeMuxed(const AVMuxer& mux, const char* path) {
-    ofstream f(path, ios::binary);
+// Write a minimal container file
+void writeMuxed(const AVMuxer& mux, const char* filePath) {
+    std::ofstream   file(filePath, std::ios::binary);
     const char magic[] = "AVMUX";
-    f.write(magic, 5);
-    uint32_t count = mux.packets.size();
-    f.write((char*)&count, 4);
-    for (const auto& p : mux.packets) {
-        uint8_t  type  = (uint8_t)p.type;
-        uint8_t  flags = p.keyframe ? 1 : 0;
-        uint32_t sz    = p.data.size();
-        f.write((char*)&type,  1);
-        f.write((char*)&p.pts, 8);
-        f.write((char*)&p.dts, 8);
-        f.write((char*)&flags, 1);
-        f.write((char*)&sz,    4);
-        f.write((char*)p.data.data(), sz);
+    constexpr size_t magicSize = 5;
+    file.write(magic, magicSize);
+    uint32_t count = static_cast<uint32_t>(mux.packets.size());
+    file.write(reinterpret_cast<char*>(&count), sizeof(uint32_t));
+    for (const auto& packet : mux.packets) {
+        uint8_t  type  = static_cast<uint8_t>(packet.type);
+        uint8_t  flags = packet.keyframe ? 1 : 0;
+        uint32_t dataSize    = static_cast<uint32_t>(packet.data.size());
+        file.write(reinterpret_cast<char*>(&type), sizeof(uint8_t));
+        file.write(reinterpret_cast<const char*>(&packet.pts), sizeof(int64_t));
+        file.write(reinterpret_cast<const char*>(&packet.dts), sizeof(int64_t));
+        file.write(reinterpret_cast<char*>(&flags), sizeof(uint8_t));
+        file.write(reinterpret_cast<char*>(&dataSize), sizeof(uint32_t));
+        file.write(reinterpret_cast<const char*>(packet.data.data()), dataSize);
     }
 }
 
 int main() {
     AVMuxer mux;
-    int64_t usPerFrame = 33333; // 30 fps = 33.3ms/frame
-    int64_t usPerAudio = 23220; // AAC = 1024 samples @ 44100 Hz
+    constexpr int64_t usPerFrame = 33333;  // 30 fps = 33.3ms/frame
+    constexpr int64_t usPerAudio = 23220;  // AAC = 1024 samples @ 44100 Hz
 
-    for (int i = 0; i < 10; ++i) {
-        bool key = (i % 3 == 0);  // keyframe every 3rd frame (GOP size=3)
+    constexpr int videoPacketCount = 10;
+    for (int index = 0; index < videoPacketCount; ++index) {
+        constexpr int keyframeInterval = 3;
+        bool key = (index % keyframeInterval == 0);  // keyframe every 3rd frame (GOP size=3)
         // I-frames are ~10x larger than P-frames
-        mux.addVideo(i * usPerFrame, key, vector<uint8_t>(key ? 8000 : 800, 0xAB));
+        constexpr size_t keyframeSize = 8000;
+        constexpr size_t pFrameSize = 800;
+        mux.addVideo(index * usPerFrame, key, std::vector<uint8_t>(key ? keyframeSize : pFrameSize, 0xAB));
     }
-    for (int i = 0; i < 14; ++i)
-        mux.addAudio(i * usPerAudio, vector<uint8_t>(384, 0xCD));
+    constexpr int audioPacketCount = 14;
+    for (int index = 0; index < audioPacketCount; ++index) {
+        constexpr size_t audioPayloadSize = 384;
+        mux.addAudio(index * usPerAudio, std::vector<uint8_t>(audioPayloadSize, 0xCD));
+    }
 
     mux.finalize();
     mux.printTable();
@@ -1502,14 +1619,23 @@ int main() {
 
     AVDemuxer demux;
     demux.demux(mux.packets);
-    printf("\\nDemuxed -> Video: %zu pkts  Audio: %zu pkts\\n",
-           demux.video.size(), demux.audio.size());
+    std::println(
+        "\nDemuxed -> Video: {} pkts  Audio: {} pkts", demux.video.size(), demux.audio.size()
+    );
 
     AVClock clock;
-    clock.onAudio(100000); clock.onVideo(200000); // video 100ms ahead of audio
-    printf("Video lead: %lldms  Should delay video: %s\\n",
-           (long long)(clock.videoLead()/1000), clock.shouldDelay()?"yes":"no");
-}`))
+    constexpr int64_t audioStartPTS = 100000;
+    constexpr int64_t videoStartPTS = 200000;
+    clock.onAudio(audioStartPTS);
+    clock.onVideo(videoStartPTS);  // video 100ms ahead of audio
+    constexpr int msDivisor = 1000;
+    std::println(
+        "Video lead: {}ms  Should delay video: {}",
+        static_cast<long long>(clock.videoLead() / msDivisor),
+        clock.shouldDelay() ? "yes" : "no"
+    );
+}
+`))
 
         + callout('🧠',
           '<strong>Key insight:</strong> A video file is a filesystem inside a file, the container '
