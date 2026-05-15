@@ -1,0 +1,1590 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>C++ Memory Layout</title>
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #060d1a;
+      --bg2: #080f1d;
+      --bg3: #0b1120;
+      --bg4: #0c1a2e;
+      --bg5: #0f172a;
+      --border: #1e3a5f;
+      --border2: #334155;
+      --text: #e2e8f0;
+      --text2: #94a3b8;
+      --text3: #64748b;
+      --text4: #475569;
+      --accent: #38bdf8;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* HEADER */
+    .app-header {
+      background: linear-gradient(135deg, var(--bg4) 0%, #0a1520 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 20px 32px;
+    }
+
+    .header-eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 6px;
+    }
+
+    .header-tag {
+      font-family: monospace;
+      font-size: 11px;
+      letter-spacing: 3px;
+      color: var(--accent);
+      text-transform: uppercase;
+    }
+
+    .header-divider {
+      width: 1px;
+      height: 14px;
+      background: var(--border);
+    }
+
+    .header-sub {
+      font-family: monospace;
+      font-size: 10px;
+      color: var(--text4);
+    }
+
+    .app-header h1 {
+      font-size: 24px;
+      font-weight: 800;
+      margin: 0 0 4px;
+      background: linear-gradient(90deg, var(--text) 0%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .app-header p {
+      font-size: 13px;
+      color: var(--text3);
+    }
+
+    /* NAV */
+    nav {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg2);
+      overflow-x: auto;
+      flex-shrink: 0;
+    }
+
+    nav button {
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--text3);
+      padding: 12px 18px;
+      cursor: pointer;
+      font-family: monospace;
+      font-size: 12px;
+      white-space: nowrap;
+      transition: all .15s;
+    }
+
+    nav button:hover {
+      color: var(--text2);
+    }
+
+    nav button.active {
+      background: var(--bg4);
+      border-bottom-color: var(--accent);
+      color: var(--text);
+    }
+
+    /* CONTENT */
+    #content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 28px 32px;
+      max-width: 900px;
+    }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 10px 32px;
+      background: var(--bg);
+      font-size: 11px;
+      color: var(--border2);
+      font-family: monospace;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    /* SECTION */
+    .section {
+      margin-bottom: 28px;
+    }
+
+    .section-title {
+      font-size: 11px;
+      font-family: monospace;
+      letter-spacing: 2px;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 4px;
+    }
+
+    .section p {
+      color: var(--text2);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .section p code,
+    .section code {
+      font-family: monospace;
+      color: #7dd3fc;
+      font-size: 12px;
+    }
+
+    /* CALLOUT */
+    .callout {
+      background: rgba(56, 189, 248, 0.07);
+      border: 1px solid #164e63;
+      border-left: 3px solid var(--accent);
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: #cbd5e1;
+      line-height: 1.6;
+      margin: 12px 0;
+      display: flex;
+      gap: 10px;
+    }
+
+    .callout-icon {
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .callout code {
+      font-family: monospace;
+      color: #7dd3fc;
+      font-size: 12px;
+    }
+
+    /* MEMORY CELLS */
+    .mem-row {
+      margin-bottom: 16px;
+    }
+
+    .mem-row-title {
+      font-size: 11px;
+      color: var(--text3);
+      font-family: monospace;
+      margin-bottom: 6px;
+      letter-spacing: 1px;
+    }
+
+    .mem-cells {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .mem-cell-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .mem-cell {
+      width: 44px;
+      height: 44px;
+      border: 1px solid var(--border2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: monospace;
+      font-size: 11px;
+      font-weight: 700;
+      color: #0f172a;
+      border-radius: 4px;
+    }
+
+    .mem-label {
+      font-size: 9px;
+      color: var(--text2);
+      font-family: monospace;
+    }
+
+    /* BIT STRIP  */
+    .bit-strip {
+      display: flex;
+      gap: 2px;
+      font-family: monospace;
+    }
+
+    .bit {
+      width: 20px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      border-radius: 3px;
+      border: 1px solid var(--border2);
+    }
+
+    /* CODE BLOCK  */
+    .code-wrap {
+      position: relative;
+      margin: 16px 0;
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: var(--border2);
+      border: none;
+      color: var(--text);
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: monospace;
+      z-index: 1;
+    }
+
+    .copy-btn.ok {
+      background: #22c55e;
+    }
+
+    pre {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      overflow-x: auto;
+      margin: 0;
+      font-family: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', Consolas, 'Courier New', monospace;
+      font-size: 12.5px;
+      line-height: 1.75;
+      color: var(--text);
+      white-space: pre;
+    }
+
+    /* ── MISC ── */
+    .ascii-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .ascii-cell {
+      background: var(--bg5);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 4px 8px;
+      font-family: monospace;
+      font-size: 12px;
+    }
+
+    .mini-code {
+      background: var(--bg5);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      font-family: monospace;
+      font-size: 12px;
+      line-height: 2;
+    }
+
+    .yuv-box {
+      background: var(--bg5);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      font-family: monospace;
+      font-size: 12px;
+      line-height: 2;
+      color: var(--text2);
+    }
+
+    .packet {
+      border-radius: 6px;
+      padding: 6px 12px;
+      margin-bottom: 4px;
+    }
+
+    .packet-label {
+      font-family: monospace;
+      font-size: 12px;
+    }
+
+    .packet-sub {
+      font-family: monospace;
+      font-size: 10px;
+      color: var(--text4);
+      margin-top: 2px;
+    }
+
+    .two-col {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+
+    .float-fields {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .float-field-title {
+      font-size: 10px;
+      font-family: monospace;
+      margin-bottom: 4px;
+    }
+
+    .float-bits {
+      display: flex;
+      gap: 2px;
+    }
+
+    .float-bit {
+      width: 20px;
+      height: 26px;
+      border: 1px solid var(--border2);
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .wave-wrap {
+      display: flex;
+      gap: 4px;
+      align-items: flex-end;
+      height: 60px;
+      margin-bottom: 8px;
+    }
+
+    .wave-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .wave-line {
+      height: 2px;
+      background: var(--border2);
+      width: 14px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="app-header">
+    <div class="header-eyebrow">
+      <span class="header-tag">Low Level C++</span>
+      <div class="header-divider"></div>
+      <span class="header-sub">memory layout reference</span>
+    </div>
+    <h1>Data Types in Memory</h1>
+    <p>From bits to characters, pixels, audio samples, and video packets</p>
+  </header>
+
+  <nav id="nav"></nav>
+  <main id="content"></main>
+
+  <footer>
+    <span>All code is C++23 — compile with: g++ -std=c++17 -O2 file.cpp</span>
+    <span>memory addresses are virtual (OS mapped)</span>
+  </footer>
+
+  <script>
+    'use strict';
+
+    // ═══════════════════════════════════════════════════════════════════════════════
+    // UTILITIES
+    // ═══════════════════════════════════════════════════════════════════════════════
+
+    function esc(s) {
+      return String(s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════════
+    // ONE-PASS C++ TOKENIZER  (no regex interference)
+    // ═══════════════════════════════════════════════════════════════════════════════
+
+    const CPP_KW = new Set([
+      'int', 'char', 'float', 'double', 'unsigned', 'signed', 'short', 'long', 'void',
+      'const', 'auto', 'return', 'for', 'if', 'else', 'while', 'do', 'switch', 'case',
+      'default', 'break', 'continue', 'struct', 'class', 'namespace', 'using', 'template',
+      'typename', 'static', 'inline', 'extern', 'volatile', 'sizeof', 'typedef', 'enum',
+      'new', 'delete', 'true', 'false', 'nullptr', 'this', 'public', 'private', 'protected',
+      'virtual', 'override', 'reinterpret_cast', 'static_cast', 'dynamic_cast', 'const_cast',
+      'uint8_t', 'uint16_t', 'uint32_t', 'uint64_t', 'int8_t', 'int16_t', 'int32_t', 'int64_t',
+      'size_t', 'bool', 'string', 'vector', 'cout', 'cin', 'endl', 'printf', 'memcpy', 'std',
+      'move', 'min', 'max', 'fill', 'sort', 'push_back', 'reserve', 'resize', 'begin', 'end',
+    ]);
+
+    const TOK_COLOR = {
+      comment: '#64748b',
+      string: '#86efac',
+      charlit: '#fda4af',
+      preproc: '#c084fc',
+      number: '#fcd34d',
+      keyword: '#7dd3fc',
+      identifier: '#e2e8f0',
+      operator: '#94a3b8',
+    };
+
+    function tokenize(src) {
+      const toks = []; let i = 0, n = src.length;
+      while (i < n) {
+        // block comment
+        if (src[i] === '/' && src[i + 1] === '*') {
+          let j = i + 2; while (j < n - 1 && !(src[j] === '*' && src[j + 1] === '/')) j++; j += 2;
+          toks.push({ t: 'comment', s: src.slice(i, j) }); i = j; continue;
+        }
+        // line comment
+        if (src[i] === '/' && src[i + 1] === '/') {
+          let j = i; while (j < n && src[j] !== '\n') j++;
+          toks.push({ t: 'comment', s: src.slice(i, j) }); i = j; continue;
+        }
+        // preprocessor
+        if (src[i] === '#') {
+          let j = i; while (j < n && src[j] !== '\n') { if (src[j] === '\\') j++; j++; }
+          toks.push({ t: 'preproc', s: src.slice(i, j) }); i = j; continue;
+        }
+        // string literal
+        if (src[i] === '"') {
+          let j = i + 1; while (j < n && src[j] !== '"') { if (src[j] === '\\') j++; j++; } j++;
+          toks.push({ t: 'string', s: src.slice(i, j) }); i = j; continue;
+        }
+        // char literal
+        if (src[i] === "'") {
+          let j = i + 1; while (j < n && src[j] !== "'") { if (src[j] === '\\') j++; j++; } j++;
+          toks.push({ t: 'charlit', s: src.slice(i, j) }); i = j; continue;
+        }
+        // number
+        if (/[0-9]/.test(src[i]) || (src[i] === '.' && /[0-9]/.test(src[i + 1]))) {
+          let j = i; while (j < n && /[0-9a-fA-FxXuUlLfF.]/.test(src[j])) j++;
+          toks.push({ t: 'number', s: src.slice(i, j) }); i = j; continue;
+        }
+        // identifier / keyword
+        if (/[a-zA-Z_]/.test(src[i])) {
+          let j = i; while (j < n && /[a-zA-Z0-9_]/.test(src[j])) j++;
+          const w = src.slice(i, j);
+          toks.push({ t: CPP_KW.has(w) ? 'keyword' : 'identifier', s: w }); i = j; continue;
+        }
+        // whitespace (preserve exactly)
+        if (/[ \t\r\n]/.test(src[i])) {
+          let j = i; while (j < n && /[ \t\r\n]/.test(src[j])) j++;
+          toks.push({ t: 'ws', s: src.slice(i, j) }); i = j; continue;
+        }
+        toks.push({ t: 'operator', s: src[i] }); i++;
+      }
+      return toks;
+    }
+
+    function highlight(src) {
+      return tokenize(src).map(tok => {
+        const safe = esc(tok.s);
+        if (tok.t === 'ws') return safe;
+        return '<span style="color:' + TOK_COLOR[tok.t] + '">' + safe + '</span>';
+      }).join('');
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════════
+    // CODE STORE  (so copy buttons can access raw source)
+    // ═══════════════════════════════════════════════════════════════════════════════
+
+    const CODE_STORE = {};
+    let codeSeq = 0;
+
+    function codeBlock(src) {
+      const id = 'c' + (codeSeq++);
+      CODE_STORE[id] = src;
+      return '<div class="code-wrap">'
+        + '<button class="copy-btn" data-id="' + id + '">copy</button>'
+        + '<pre><code>' + highlight(src) + '</code></pre>'
+        + '</div>';
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════════
+    // VISUAL HELPERS
+    // ═══════════════════════════════════════════════════════════════════════════════
+
+    function memCell(hex, label, color, dim) {
+      color = color || '#e2e8f0'; dim = dim || false;
+      return '<div class="mem-cell-wrap" style="opacity:' + (dim ? 0.35 : 1) + '">'
+        + '<div class="mem-cell" style="background:' + color + '">' + esc(hex) + '</div>'
+        + (label ? '<span class="mem-label">' + esc(label) + '</span>' : '')
+        + '</div>';
+    }
+
+    function memRow(cells, title) {
+      return '<div class="mem-row">'
+        + (title ? '<div class="mem-row-title">' + esc(title) + '</div>' : '')
+        + '<div class="mem-cells">' + cells.join('') + '</div>'
+        + '</div>';
+    }
+
+    function bitStrip(value, n, colors) {
+      n = n || 8;
+      let h = '<div class="bit-strip">';
+      for (let i = n - 1; i >= 0; i--) {
+        const b = (value >> i) & 1;
+        const bg = colors ? colors[n - 1 - i] : (b ? '#38bdf8' : '#1e293b');
+        const fg = b ? '#0f172a' : '#475569';
+        h += '<div class="bit" style="background:' + bg + ';color:' + fg + '">' + b + '</div>';
+      }
+      return h + '</div>';
+    }
+
+    function section(title, body) {
+      return '<div class="section"><div class="section-title">' + esc(title) + '</div>' + body + '</div>';
+    }
+
+    function callout(icon, html) {
+      return '<div class="callout"><span class="callout-icon">' + icon + '</span><span>' + html + '</span></div>';
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════════
+    // PANEL 1 — CHARACTERS
+    // ═══════════════════════════════════════════════════════════════════════════════
+
+    function panelChar() {
+      const asciiItems = [['A', 65], ['Z', 90], ['a', 97], ['z', 122], ['0', 48], ['9', 57], [' ', 32], ['\\n', 10], ['\\0', 0]];
+      return ''
+        + section('What is a character in memory?',
+          '<p>A <code>char</code> is <strong style="color:#e2e8f0">exactly 1 byte (8 bits)</strong> on all platforms. '
+          + 'The numeric value stored is the ASCII code of the character. '
+          + '<code>\'A\'</code> = decimal 65 = hex 0x41 = binary 01000001. '
+          + 'Multi-byte encodings (UTF-8, UTF-16) use multiple consecutive chars for non-ASCII codepoints.</p>')
+
+        + section("Memory layout — 'A'",
+          memRow([memCell('0x41', "'A'=65", '#7dd3fc'), memCell('0x00', 'NUL', '#334155', true)], 'ADDRESS →')
+          + '<div style="margin-top:10px">'
+          + '<div class="mem-row-title">BIT LAYOUT (MSB → LSB)</div>'
+          + bitStrip(65, 8)
+          + '<div style="display:flex;gap:2px;font-family:monospace;margin-top:4px">'
+          + [6, 5, 4, 3, 2, 1, 0].map(v => '<div style="width:20px;text-align:center;font-size:9px;color:#475569">2^' + v + '</div>').join('')
+          + '<div style="width:20px;text-align:center;font-size:9px;color:#475569">2^0</div>'
+          + '</div>'
+          + '<div style="font-size:12px;color:#94a3b8;margin-top:6px;font-family:monospace">'
+          + '= 0x128 + 1x64 + 0x32 + 0x16 + 0x8 + 0x4 + 0x2 + 1x1 = <span style="color:#fcd34d">65</span>'
+          + '</div></div>')
+
+        + section('C++ Code', codeBlock(
+          `#include <iostream>
+#include <cstdint>
+using namespace std;
+
+void inspectChar(char c) {
+    // A char IS an 8-bit integer — cast it to see the number
+    uint8_t raw = static_cast<uint8_t>(c);
+
+    cout << "Char   : " << c               << endl;  // A
+    cout << "Decimal: " << (int)raw        << endl;  // 65
+    cout << "Hex    : " << hex << (int)raw << endl;  // 41
+    cout << "Bits   : ";
+    for (int i = 7; i >= 0; --i)
+        cout << ((raw >> i) & 1);           // 01000001
+    cout << endl;
+
+    cout << "Address: " << (void*)&c       << endl;
+    cout << "Size   : " << sizeof(c) << " byte" << endl; // always 1
+}
+
+// UTF-8: multi-byte characters
+void inspectUTF8() {
+    // The Euro sign encodes as 3 bytes in UTF-8: E2 82 AC
+    const char euro[] = "\xe2\x82\xac"; // 3 bytes + NUL
+    printf("UTF-8 bytes for the Euro sign:\\n");
+    for (int i = 0; i < 3; ++i)
+        printf("  byte[%d] = 0x%02X\\n", i, (uint8_t)euro[i]);
+    // Output:
+    //   byte[0] = 0xE2   (11100010)
+    //   byte[1] = 0x82   (10000010)
+    //   byte[2] = 0xAC   (10101100)
+}
+
+// Reading raw memory back as a char
+void readFromMemory() {
+    uint8_t rawByte = 0x41;          // store the number 65
+    char* asChar = reinterpret_cast<char*>(&rawByte);
+    cout << "Raw 0x41 as char: " << *asChar << endl;  // prints 'A'
+}
+
+int main() {
+    inspectChar('A');
+    inspectUTF8();
+    readFromMemory();
+}`))
+
+        + section('ASCII quick reference',
+          '<div class="ascii-grid">'
+          + asciiItems.map(([c, v]) =>
+            '<div class="ascii-cell">'
+            + '<span style="color:#fda4af">\'' + c + '\'</span>'
+            + '<span style="color:#64748b"> = </span>'
+            + '<span style="color:#fcd34d">' + v + '</span>'
+            + '<span style="color:#475569"> (0x' + v.toString(16).padStart(2, '0').toUpperCase() + ')</span>'
+            + '</div>').join('')
+          + '</div>')
+
+        + callout('🧠',
+          '<strong>Key insight:</strong> A <code>char</code> is nothing but a small integer. '
+          + 'The "character" interpretation only exists in your code\'s semantics, in RAM it is just 8 bits. '
+          + 'This is why <code>printf("%d", \'A\')</code> prints <code>65</code>.');
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════════
+    // PANEL 2 — INTEGERS
+    // ═══════════════════════════════════════════════════════════════════════════════
+
+    function panelInt() {
+      return ''
+        + section('Integer storage fundamentals',
+          '<p>Integers are stored in <strong style="color:#e2e8f0">two\'s complement</strong> (for signed) '
+          + 'or plain binary (for unsigned). The CPU uses the same bit pattern, only the <em>interpretation</em> differs. '
+          + 'Byte order (endianness) determines how multi-byte integers are laid out in memory.</p>')
+
+        + section('Bit layout for 8-bit types',
+          '<div style="display:flex;flex-direction:column;gap:12px">'
+          + '<div><div class="mem-row-title">uint8_t val = 200 → 11001000</div>' + bitStrip(200, 8) + '</div>'
+          + '<div><div class="mem-row-title">int8_t val = -56 → same bits! (two\'s complement)</div>'
+          + bitStrip(200, 8, ['#ef4444', '#38bdf8', '#38bdf8', '#f59e0b', '#f59e0b', '#38bdf8', '#38bdf8', '#38bdf8'])
+          + '<div style="font-size:11px;color:#94a3b8;font-family:monospace;margin-top:4px">'
+          + '<span style="color:#ef4444">sign bit</span> | value bits, 200 unsigned = -56 signed'
+          + '</div></div></div>')
+
+        + section('32-bit integer: little-endian layout of 305,419,896 (0x12345678)',
+          memRow([memCell('0x78', 'byte[0]', '#fbbf24'), memCell('0x56', 'byte[1]', '#fb923c'),
+          memCell('0x34', 'byte[2]', '#f87171'), memCell('0x12', 'byte[3]', '#c084fc')])
+          + '<div style="font-size:11px;color:#94a3b8;font-family:monospace;margin-top:4px">'
+          + '↑ least significant byte at lowest address (x86/x64 = little-endian)'
+          + '</div>')
+
+        + section('C++ Code', codeBlock(
+          `#include <iostream>
+#include <cstdint>
+#include <cstring>
+using namespace std;
+
+// Print every bit of any integer
+template<typename T>
+void printBits(T value, const char* label) {
+    cout << label << " (" << sizeof(T)*8 << "-bit): ";
+    for (int i = sizeof(T)*8 - 1; i >= 0; --i) {
+        cout << ((value >> i) & 1);
+        if (i % 8 == 0 && i != 0) cout << '_'; // group bytes visually
+    }
+    cout << "  dec=" << (long long)value
+         << "  hex=0x" << hex << (unsigned long long)value << dec << endl;
+}
+
+// Two's complement: signed vs unsigned same bits
+void twosComplement() {
+    int8_t  s = -1;
+    uint8_t u;
+    memcpy(&u, &s, 1);  // copy raw bytes — no value conversion
+    printf("int8_t  -1 stored as: 0x%02X = %u unsigned\\n", u, u); // 0xFF = 255
+
+    int8_t  s2 = -56;
+    uint8_t u2;
+    memcpy(&u2, &s2, 1);
+    printf("int8_t -56 stored as: 0x%02X = %u unsigned\\n", u2, u2); // 0xC8 = 200
+}
+
+// Endianness: how a 32-bit int lays out in RAM
+void endianness() {
+    uint32_t value = 0x12345678;
+    uint8_t* bytes = reinterpret_cast<uint8_t*>(&value);
+
+    printf("\\n0x12345678 in memory (byte-by-byte):\\n");
+    for (int i = 0; i < 4; ++i)
+        printf("  Address +%d: 0x%02X\\n", i, bytes[i]);
+    // On little-endian (x86): 0x78  0x56  0x34  0x12
+    // On big-endian (network): 0x12  0x34  0x56  0x78
+}
+
+// Reconstruct an int from raw bytes
+void buildFromBytes() {
+    uint8_t raw[4] = {0x78, 0x56, 0x34, 0x12}; // little-endian layout
+    uint32_t result;
+    memcpy(&result, raw, 4);
+    printf("\\nReconstructed: %u (0x%X)\\n", result, result); // 305419896
+}
+
+// Overflow behavior 
+void overflow() {
+    uint8_t u = 255;
+    u++;                  // wraps: 255 + 1 = 0  (modulo 2^8)
+    printf("\\nuint8_t 255+1 = %u\\n", u);  // 0
+
+    int8_t s = 127;
+    s++;                  // UNDEFINED BEHAVIOR for signed overflow
+    printf("int8_t  127+1 = %d (UB — likely -128 on x86)\\n", s);
+}
+
+int main() {
+    printBits((uint8_t)200,        "uint8_t  200");
+    printBits((int8_t)-56,         " int8_t  -56");
+    printBits((uint32_t)305419896, "uint32_t 0x12345678");
+    printBits((int32_t)-1,         " int32_t   -1");
+    twosComplement();
+    endianness();
+    buildFromBytes();
+    overflow();
+}`))
+
+        + section("Two's complement formula",
+          '<div class="mini-code">'
+          + '<div style="color:#94a3b8">Negate any integer in one rule:</div>'
+          + '<div style="color:#7dd3fc;margin-top:6px">  ~x + 1 == -x  (always true for any bit width)</div>'
+          + '<div style="color:#64748b;margin-top:8px">// -56 step by step:</div>'
+          + '<div style="color:#e2e8f0">  56  = 00111000</div>'
+          + '<div style="color:#e2e8f0">  ~56 = 11000111  (flip all bits)</div>'
+          + '<div style="color:#fcd34d">  +1  = 11001000  = 200u = -56s ✓</div>'
+          + '</div>')
+
+        + callout('🧠',
+          '<strong>Key insight:</strong> The CPU sees only bits. <code>int</code> and <code>unsigned int</code> '
+          + 'use the same ADD/SUB instructions. The only difference is which <em>comparison</em> and '
+          + '<em>overflow flags</em> the CPU checks, the bit patterns are identical.');
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════════
+    // PANEL 3 — FLOATS
+    // ═══════════════════════════════════════════════════════════════════════════════
+
+    function panelFloat() {
+      const fields = [
+        { bits: '0', label: 'sign', color: '#ef4444' },
+        { bits: '10000001', label: 'exponent (128 → 2^1)', color: '#f59e0b' },
+        { bits: '10100000000000000000000', label: 'mantissa (1.101...)', color: '#22c55e' },
+      ];
+
+      const fieldsHtml = fields.map(({ bits, label, color }) =>
+        '<div>'
+        + '<div class="float-field-title" style="color:' + color + '">' + label + '</div>'
+        + '<div class="float-bits">'
+        + bits.split('').map(b => '<div class="float-bit" style="background:' + (b === '1' ? color : '#1e293b') + ';color:' + (b === '1' ? '#0f172a' : '#475569') + '">' + b + '</div>').join('')
+        + '</div></div>'
+      ).join('');
+
+      return ''
+        + section('IEEE 754 single-precision (float = 32 bits)',
+          '<p>A <code>float</code> packs <strong style="color:#e2e8f0">3 fields</strong> into 32 bits: '
+          + '1 sign bit, 8 exponent bits (biased by 127), and 23 mantissa bits. '
+          + 'Value = (-1)^sign x 2^(exp-127) x 1.mantissa</p>'
+          + '<div class="float-fields">' + fieldsHtml + '</div>'
+          + '<div style="font-family:monospace;font-size:12px;color:#94a3b8;margin-top:8px">'
+          + '6.5 = (-1)^<span style="color:#ef4444">0</span>'
+          + ' x 2^(<span style="color:#f59e0b">128</span>-127)'
+          + ' x 1.<span style="color:#22c55e">101</span>₂'
+          + ' = 1 x 2 x 1.625 = <span style="color:#fcd34d">6.5 ✓</span>'
+          + '</div>')
+
+        + section('Raw bytes of 6.5f in memory (little-endian)',
+          memRow([memCell('0x00', 'byte[0]', '#86efac'), memCell('0x00', 'byte[1]', '#86efac'),
+          memCell('0xD0', 'byte[2]', '#fbbf24'), memCell('0x40', 'byte[3]', '#f87171')])
+          + '<div style="font-family:monospace;font-size:11px;color:#64748b;margin-top:4px">'
+          + '= 0x40D00000 → 0 10000001 10100000000000000000000'
+          + '</div>')
+
+        + section('C++ Code', codeBlock(
+          `#include <iostream>
+#include <cstdint>
+#include <cstring>
+#include <cmath>
+using namespace std;
+
+// Dissect any float into its IEEE 754 fields
+void dissectFloat(float f) {
+    uint32_t bits;
+    memcpy(&bits, &f, 4);  // safe type-pun — no undefined behavior
+
+    uint32_t sign     =  bits >> 31;
+    uint32_t exponent = (bits >> 23) & 0xFF;
+    uint32_t mantissa =  bits & 0x7FFFFF;
+
+    printf("\\nfloat = %f\\n", f);
+    printf("Raw hex : 0x%08X\\n", bits);
+    printf("Sign    : %u         (%s)\\n", sign, sign ? "negative" : "positive");
+    printf("Exponent: %u         (biased), actual = %d\\n",
+            exponent, (int)exponent - 127);
+    printf("Mantissa: 0x%06X\\n", mantissa);
+
+    // Reconstruct value from raw fields
+    double check = pow(-1.0, sign)
+                 * pow(2.0,  (int)exponent - 127)
+                 * (1.0 + (double)mantissa / (1 << 23));
+    printf("Verify  : %.10f\\n", check);
+}
+
+// Why 0.1 + 0.2 != 0.3
+void floatPrecision() {
+    float a = 0.1f, b = 0.2f;
+    printf("\\n0.1f + 0.2f = %.20f\\n", a + b); // NOT exactly 0.3
+    printf("0.3f        = %.20f\\n", 0.3f);
+
+    // Correct way: compare with epsilon
+    float eps = 1e-6f;
+    bool equal = fabs((a + b) - 0.3f) < eps;
+    printf("Equal within 1e-6: %s\\n", equal ? "true" : "false");
+}
+
+// double: 64 bits (1+11+52)
+void dissectDouble(double d) {
+    uint64_t bits;
+    memcpy(&bits, &d, 8);
+    uint64_t sign     =  bits >> 63;
+    uint64_t exponent = (bits >> 52) & 0x7FF;
+    uint64_t mantissa =  bits & 0x000FFFFFFFFFFFFFull;
+    printf("\\ndouble %.4f: sign=%llu exp=%llu (actual %lld) mantissa=0x%013llX\\n",
+           d, sign, exponent, (long long)exponent - 1023, mantissa);
+}
+
+// Special IEEE 754 bit patterns
+void specials() {
+    float inf  =  1.0f / 0.0f;
+    float nan  =  0.0f / 0.0f;
+    float ninf = -1.0f / 0.0f;
+    uint32_t b1, b2, b3;
+    memcpy(&b1, &inf,  4);
+    memcpy(&b2, &nan,  4);
+    memcpy(&b3, &ninf, 4);
+    printf("\\n+Inf = 0x%08X   -Inf = 0x%08X   NaN = 0x%08X\\n", b1, b3, b2);
+    // +Inf = 0x7F800000  (exp=0xFF, mantissa=0)
+    // NaN  = 0x7FC00000  (exp=0xFF, mantissa != 0)
+}
+
+int main() {
+    dissectFloat(6.5f);
+    dissectFloat(0.1f);
+    floatPrecision();
+    dissectDouble(3.14159265358979);
+    specials();
+}`))
+
+        + callout('🧠',
+          '<strong>Key insight:</strong> Floating-point numbers are <em>approximations</em> of real numbers. '
+          + '0.1 cannot be represented exactly in binary, just like 1/3 cannot be represented exactly in decimal. '
+          + 'Always compare floats with an epsilon tolerance, never with <code>==</code>.');
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════════
+    // PANEL 4 — IMAGES
+    // ═══════════════════════════════════════════════════════════════════════════════
+
+    function panelImage() {
+      const pixels = [
+        [255, 0, 0], [0, 255, 0], [0, 0, 255], [255, 255, 0],
+        [255, 0, 255], [0, 255, 255], [128, 128, 128], [255, 255, 255],
+      ];
+
+      const swatches = pixels.map(([r, g, b]) =>
+        '<div style="width:28px;height:28px;background:rgb(' + r + ',' + g + ',' + b + ');border-radius:3px;border:1px solid #334155"></div>'
+      ).join('');
+
+      const hexCells = pixels.map(([r, g, b], i) =>
+        '<div style="display:flex;gap:2px">'
+        + memCell('R' + r.toString(16).padStart(2, '0').toUpperCase(), 'px[' + i + '].r', 'rgb(' + r + ',80,80)')
+        + memCell('G' + g.toString(16).padStart(2, '0').toUpperCase(), 'px[' + i + '].g', 'rgb(80,' + g + ',80)')
+        + memCell('B' + b.toString(16).padStart(2, '0').toUpperCase(), 'px[' + i + '].b', 'rgb(80,80,' + b + ')')
+        + '</div>'
+      ).join('');
+
+      return ''
+        + section('An image is a 2D array of pixels in memory',
+          '<p>The simplest image format is a flat byte array: R, G, B (and optionally A) per pixel, '
+          + 'row by row from top-left. A 1920x1080 RGB image = '
+          + '<strong style="color:#e2e8f0">6,220,800 bytes ≈ 6 MB</strong> of raw data. '
+          + 'File formats (PNG, JPEG) are compression layers on top of this flat array.</p>')
+
+        + section('4x2 pixel image memory layout (RGB)',
+          '<div class="two-col">'
+          + '<div><div class="mem-row-title">VISUAL</div>'
+          + '<div style="display:grid;grid-template-columns:repeat(4,28px);gap:2px">' + swatches + '</div></div>'
+          + '<div><div class="mem-row-title">MEMORY (consecutive bytes)</div>'
+          + '<div style="display:flex;flex-wrap:wrap;gap:3px">' + hexCells + '</div></div>'
+          + '</div>')
+
+        + section('C++ Code', codeBlock(
+          `#include <iostream>
+#include <vector>
+#include <cstdint>
+#include <fstream>
+using namespace std;
+
+// Pixel struct: exactly 3 bytes, no compiler padding 
+#pragma pack(push, 1)
+struct RGB  { uint8_t r, g, b; };
+struct RGBA { uint8_t r, g, b, a; };
+#pragma pack(pop)
+
+// Raw image: a flat array of pixels in row-major order 
+struct Image {
+    uint32_t width, height;
+    vector<RGB> pixels;  // pixel at (x,y) = pixels[y * width + x]
+
+    Image(uint32_t w, uint32_t h) : width(w), height(h), pixels(w * h) {}
+
+    RGB&       at(uint32_t x, uint32_t y)       { return pixels[y * width + x]; }
+    const RGB& at(uint32_t x, uint32_t y) const { return pixels[y * width + x]; }
+
+    const uint8_t* rawBytes() const {
+        return reinterpret_cast<const uint8_t*>(pixels.data());
+    }
+    size_t byteSize() const { return width * height * sizeof(RGB); } // 3 per pixel
+};
+
+// Show how pixel (x,y) maps to a byte offset
+void showLayout(const Image& img, uint32_t x, uint32_t y) {
+    size_t offset = (y * img.width + x) * sizeof(RGB);
+    const RGB& px = img.at(x, y);
+    printf("Pixel (%u,%u) -> byte offset %zu from image start\\n", x, y, offset);
+    printf("  R=0x%02X  G=0x%02X  B=0x%02X\\n", px.r, px.g, px.b);
+    printf("  &R=%p  &G=%p  &B=%p\\n",
+           (void*)&px.r, (void*)&px.g, (void*)&px.b);
+    // Note: &G == &R + 1  and  &B == &R + 2  (packed, no gaps)
+}
+
+// Grayscale: collapse 3 bytes per pixel to 1 
+void toGrayscale(const Image& src, vector<uint8_t>& out) {
+    out.resize(src.width * src.height);
+    for (size_t i = 0; i < src.pixels.size(); ++i) {
+        const RGB& p = src.pixels[i];
+        // ITU-R BT.601 perceptual luma formula
+        out[i] = (uint8_t)(0.299f*p.r + 0.587f*p.g + 0.114f*p.b);
+    }
+}
+
+// Write uncompressed BMP to disk 
+void writeBMP(const Image& img, const char* path) {
+    #pragma pack(push, 1)
+    struct BMPHeader {
+        char     sig[2]     = {'B','M'};
+        uint32_t fileSize;
+        uint16_t reserved1  = 0, reserved2 = 0;
+        uint32_t dataOffset = 54;
+        uint32_t infoSize   = 40;
+        int32_t  w, h;
+        uint16_t planes     = 1, bpp = 24;
+        uint32_t comp       = 0, imgSize = 0;
+        int32_t  xppm = 2835, yppm = 2835;
+        uint32_t clrs = 0, iclrs = 0;
+    };
+    #pragma pack(pop)
+
+    // BMP rows must be 4-byte aligned
+    uint32_t stride = (img.width * 3 + 3) & ~3;
+    BMPHeader hdr;
+    hdr.w        = img.width;
+    hdr.h        = -(int32_t)img.height; // negative = top-down row order
+    hdr.fileSize = 54 + stride * img.height;
+
+    ofstream f(path, ios::binary);
+    f.write(reinterpret_cast<char*>(&hdr), sizeof(hdr));
+
+    vector<uint8_t> row(stride, 0);
+    for (uint32_t y = 0; y < img.height; ++y) {
+        for (uint32_t x = 0; x < img.width; ++x) {
+            const RGB& px = img.at(x, y);
+            row[x*3+0] = px.b;  // BMP stores in BGR order, not RGB!
+            row[x*3+1] = px.g;
+            row[x*3+2] = px.r;
+        }
+        f.write(reinterpret_cast<char*>(row.data()), stride);
+    }
+}
+
+int main() {
+    Image img(4, 2);
+    img.at(0,0) = {255,   0,   0};  img.at(1,0) = {  0, 255,   0};
+    img.at(2,0) = {  0,   0, 255};  img.at(3,0) = {255, 255,   0};
+    img.at(0,1) = {255,   0, 255};  img.at(1,1) = {  0, 255, 255};
+    img.at(2,1) = {128, 128, 128};  img.at(3,1) = {255, 255, 255};
+
+    printf("Total raw bytes: %zu\\n", img.byteSize()); // 4*2*3 = 24
+
+    showLayout(img, 2, 1);
+
+    vector<uint8_t> gray;
+    toGrayscale(img, gray);
+    printf("Luma values: ");
+    for (uint8_t v : gray) printf("%3u ", v);
+    printf("\\n");
+
+    writeBMP(img, "output.bmp");
+    printf("Wrote output.bmp (open in any image viewer)\\n");
+}`))
+
+        + callout('🧠',
+          '<strong>Key insight:</strong> An image is literally an array of integers. '
+          + '<code>img.at(x,y)</code> is just index arithmetic: '
+          + '<code>offset = (y x width + x) x bytesPerPixel</code>. '
+          + 'All image operations (blur, resize, filter) are arithmetic on those integers.');
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════════
+    // PANEL 5 — SOUND
+    // ═══════════════════════════════════════════════════════════════════════════════
+
+    function panelSound() {
+      const samples = [0, 82, 160, 214, 240, 232, 190, 120, 40, -40, -120, -190, -232, -240, -214, -160];
+
+      const waveHtml = samples.map(v => {
+        const h = Math.round(Math.abs(v) / 240 * 28) + 2;
+        if (v >= 0)
+          return '<div class="wave-col"><div style="height:' + h + 'px;width:14px;background:#38bdf8;border-radius:3px 3px 0 0"></div><div class="wave-line"></div></div>';
+        return '<div class="wave-col"><div class="wave-line"></div><div style="height:' + h + 'px;width:14px;background:#f87171;border-radius:0 0 3px 3px"></div></div>';
+      }).join('');
+
+      const sampleCells = samples.map((v, i) => {
+        const a = (0.3 + Math.abs(v) / 400).toFixed(2);
+        const bg = v > 0 ? 'rgba(56,189,248,' + a + ')' : 'rgba(248,113,113,' + a + ')';
+        return memCell((v >= 0 ? '+' : '') + v, 't[' + i + ']', bg);
+      }).join('');
+
+      return ''
+        + section('Sound = pressure samples over time',
+          '<p>Audio is stored as a sequence of <strong style="color:#e2e8f0">amplitude samples</strong>, '
+          + 'measurements of air pressure taken at a fixed rate (sample rate). '
+          + 'CD quality = 44,100 samples/sec x 16 bits x 2 channels = '
+          + '<strong style="color:#e2e8f0">1,411,200 bits/sec ≈ 170 KB/s</strong> of raw PCM data.</p>')
+
+        + section('One cycle of a sine wave — 16 samples @ 16-bit PCM',
+          '<div class="wave-wrap">' + waveHtml + '</div>'
+          + '<div class="mem-cells">' + sampleCells + '</div>'
+          + '<div style="font-size:11px;color:#64748b;font-family:monospace;margin-top:6px">'
+          + 'Each sample = 2 bytes (int16_t). 16 samples x 2 bytes = 32 bytes.'
+          + '</div>')
+
+        + section('Stereo interleaving in memory: L R L R L R …',
+          '<div class="mem-cells">'
+          + [0, 1, 2, 3, 4, 5].map(i =>
+            '<div style="display:flex;gap:2px">'
+            + memCell('L' + i, 'left', '#7dd3fc')
+            + memCell('R' + i, 'right', '#c084fc')
+            + '</div>').join('')
+          + '</div>')
+
+        + section('C++ Code', codeBlock(
+          `#include <iostream>
+#include <vector>
+#include <cstdint>
+#include <cmath>
+#include <fstream>
+using namespace std;
+
+// PCM Audio buffer: the raw memory layout of sound
+struct AudioBuffer {
+    uint32_t sampleRate;     // e.g. 44100 samples per second
+    uint16_t channels;       // 1 = mono,  2 = stereo
+    uint16_t bitsPerSample;  // 8, 16, 24, or 32
+    vector<int16_t> samples; // stereo layout: L0 R0 L1 R1 L2 R2 ...
+
+    double duration() const {
+        return (double)samples.size() / (sampleRate * channels);
+    }
+};
+
+// Generate a pure sine wave 
+AudioBuffer sineWave(double freq, double durSec,
+                     uint32_t sampleRate = 44100) {
+    AudioBuffer buf;
+    buf.sampleRate    = sampleRate;
+    buf.channels      = 1;
+    buf.bitsPerSample = 16;
+    buf.samples.resize((size_t)(durSec * sampleRate));
+
+    for (size_t i = 0; i < buf.samples.size(); ++i) {
+        double t     = (double)i / sampleRate;
+        double angle = 2.0 * M_PI * freq * t;
+        buf.samples[i] = (int16_t)(sin(angle) * 32000.0);
+        // int16_t range: -32768 to +32767
+    }
+    return buf;
+}
+
+// Show the raw bytes of the first N samples 
+void inspectMemory(const AudioBuffer& buf, int n = 4) {
+    printf("\\nFirst %d samples (each = 2 bytes = int16_t):\\n", n);
+    for (int i = 0; i < n; ++i) {
+        int16_t s = buf.samples[i];
+        uint8_t* b = reinterpret_cast<uint8_t*>(&s);
+        printf("  sample[%d] = %6d  bytes: %02X %02X  addr: %p\\n",
+               i, s, b[0], b[1], (void*)&buf.samples[i]);
+    }
+    printf("Total audio bytes: %zu\\n", buf.samples.size() * 2);
+}
+
+// Stereo: interleave two mono buffers
+AudioBuffer toStereo(const AudioBuffer& left, const AudioBuffer& right) {
+    AudioBuffer out;
+    out.sampleRate    = left.sampleRate;
+    out.channels      = 2;
+    out.bitsPerSample = 16;
+    size_t n = min(left.samples.size(), right.samples.size());
+    out.samples.reserve(n * 2);
+    for (size_t i = 0; i < n; ++i) {
+        out.samples.push_back(left.samples[i]);   // Left channel
+        out.samples.push_back(right.samples[i]);  // Right channel
+    }
+    // Byte layout: [L0 lo][L0 hi][R0 lo][R0 hi][L1 lo][L1 hi]...
+    return out;
+}
+
+// Write a WAV file (44-byte header + raw PCM data)
+void writeWAV(const AudioBuffer& buf, const char* path) {
+    #pragma pack(push, 1)
+    struct WAVHeader {
+        char     riff[4]      = {'R','I','F','F'};
+        uint32_t chunkSize;
+        char     wave[4]      = {'W','A','V','E'};
+        char     fmt[4]       = {'f','m','t',' '};
+        uint32_t subChunkSize = 16;
+        uint16_t audioFormat  = 1;  // 1 = PCM (uncompressed)
+        uint16_t numChannels;
+        uint32_t sampleRate;
+        uint32_t byteRate;          // sampleRate * channels * bitsPerSample/8
+        uint16_t blockAlign;        // channels * bitsPerSample/8
+        uint16_t bitsPerSample;
+        char     data[4]      = {'d','a','t','a'};
+        uint32_t dataSize;
+    };
+    #pragma pack(pop)
+
+    uint32_t dataBytes    = buf.samples.size() * sizeof(int16_t);
+    WAVHeader hdr;
+    hdr.numChannels   = buf.channels;
+    hdr.sampleRate    = buf.sampleRate;
+    hdr.bitsPerSample = buf.bitsPerSample;
+    hdr.blockAlign    = buf.channels * buf.bitsPerSample / 8;
+    hdr.byteRate      = buf.sampleRate * hdr.blockAlign;
+    hdr.dataSize      = dataBytes;
+    hdr.chunkSize     = 36 + dataBytes;
+
+    ofstream f(path, ios::binary);
+    f.write(reinterpret_cast<char*>(&hdr), sizeof(hdr));
+    f.write(reinterpret_cast<const char*>(buf.samples.data()), dataBytes);
+}
+
+int main() {
+    AudioBuffer tone = sineWave(440.0, 0.01); // A-440 Hz, 10ms
+    inspectMemory(tone, 4);
+
+    // A musical chord: A4 + C#5 in stereo
+    AudioBuffer left  = sineWave(440.0, 1.0);
+    AudioBuffer right = sineWave(554.4, 1.0);
+    AudioBuffer chord = toStereo(left, right);
+
+    printf("\\nStereo: %zu samples, %zu bytes, %.2f sec\\n",
+           chord.samples.size(), chord.samples.size()*2, chord.duration());
+
+    writeWAV(chord, "chord.wav");
+    printf("Wrote chord.wav — open in Audacity or any audio player\\n");
+}`))
+
+        + callout('🧠',
+          '<strong>Key insight:</strong> Sound in memory is just a 1D array of integers sampled at a fixed rate. '
+          + 'Stereo is two interleaved arrays. All audio effects (reverb, EQ, pitch shift) are '
+          + 'mathematical operations on these integer arrays, exactly like image filters are math on pixel arrays.');
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════════
+    // PANEL 6 — VIDEO
+    // ═══════════════════════════════════════════════════════════════════════════════
+
+    function panelVideo() {
+      const yCells = Array(16).fill(0).map(() => memCell('Y', '', '#fcd34d')).join('');
+      const cbCells = Array(4).fill(0).map(() => memCell('Cb', '', '#86efac')).join('');
+      const crCells = Array(4).fill(0).map(() => memCell('Cr', '', '#f9a8d4')).join('');
+
+      return ''
+        + section('Video = sequence of image frames at a fixed frame rate',
+          '<p>A raw video is a sequence of image frames. 1080p at 30fps = '
+          + '<strong style="color:#e2e8f0">1920x1080x3 x 30 = 186 MB/s</strong> of raw data — '
+          + 'which is why video <em>always</em> uses compression (H.264, H.265, AV1). '
+          + 'Most codecs work in <strong style="color:#e2e8f0">YCbCr color space</strong> because '
+          + 'the human eye is far more sensitive to luma (Y) than chroma (Cb/Cr).</p>')
+
+        + section('Frame buffer layout — YCbCr 4:2:0 (used by H.264)',
+          '<div class="yuv-box">'
+          + '<div>8x4 frame in YCbCr 4:2:0:</div>'
+          + '<div style="color:#fcd34d">Y  plane [8x4 = 32 bytes] — full-resolution luma</div>'
+          + '<div style="color:#86efac">Cb plane [4x2 =  8 bytes] — half-res blue-difference chroma</div>'
+          + '<div style="color:#f9a8d4">Cr plane [4x2 =  8 bytes] — half-res red-difference chroma</div>'
+          + '<div style="color:#64748b">Total: 48 bytes vs 96 for RGB, 50% bandwidth saving</div>'
+          + '<div style="color:#38bdf8;margin-top:6px">Memory: [Y0 Y1 … Y31][Cb0 … Cb7][Cr0 … Cr7]</div>'
+          + '</div>'
+          + '<div class="mem-cells" style="margin-top:10px">' + yCells + cbCells + crCells + '</div>')
+
+        + section('C++ Code', codeBlock(
+          `#include <iostream>
+#include <vector>
+#include <cstdint>
+#include <fstream>
+using namespace std;
+
+// YCbCr 4:2:0 frame (NV12 / planar layout)
+struct YUVFrame {
+    uint32_t width, height;
+    vector<uint8_t> Y;   // luma:        width * height bytes
+    vector<uint8_t> Cb;  // blue-chroma: (width/2) * (height/2) bytes
+    vector<uint8_t> Cr;  // red-chroma:  (width/2) * (height/2) bytes
+
+    YUVFrame(uint32_t w, uint32_t h)
+      : width(w), height(h),
+        Y(w * h, 128), Cb((w/2)*(h/2), 128), Cr((w/2)*(h/2), 128) {}
+
+    size_t byteSize() const { return Y.size() + Cb.size() + Cr.size(); }
+};
+
+// RGB <-> YCbCr (ITU-R BT.601)
+struct RGB { uint8_t r, g, b; };
+
+void rgbToYCbCr(const RGB& p, uint8_t& Y, uint8_t& Cb, uint8_t& Cr) {
+    Y  = (uint8_t)( 16 + 0.257f*p.r + 0.504f*p.g + 0.098f*p.b);
+    Cb = (uint8_t)(128 - 0.148f*p.r - 0.291f*p.g + 0.439f*p.b);
+    Cr = (uint8_t)(128 + 0.439f*p.r - 0.368f*p.g - 0.071f*p.b);
+}
+
+RGB yCbCrToRGB(uint8_t Y, uint8_t Cb, uint8_t Cr) {
+    float y = Y-16, cb = Cb-128, cr = Cr-128;
+    auto clamp = [](float v) -> uint8_t { return v<0?0:v>255?255:(uint8_t)v; };
+    return { clamp(1.164f*y + 1.596f*cr),
+             clamp(1.164f*y - 0.392f*cb - 0.813f*cr),
+             clamp(1.164f*y + 2.017f*cb) };
+}
+
+// A video is a vector of frames
+struct RawVideo {
+    uint32_t width, height, fps;
+    vector<YUVFrame> frames;
+
+    RawVideo(uint32_t w, uint32_t h, uint32_t f) : width(w), height(h), fps(f) {}
+
+    double duration()   const { return (double)frames.size() / fps; }
+    size_t totalBytes() const {
+        return frames.empty() ? 0 : frames[0].byteSize() * frames.size();
+    }
+};
+
+// Write raw YUV420 file 
+void writeYUV(const RawVideo& vid, const char* path) {
+    // Playback: ffplay -f rawvideo -pixel_format yuv420p -video_size WxH file.yuv
+    ofstream f(path, ios::binary);
+    for (const auto& frame : vid.frames) {
+        f.write((char*)frame.Y.data(),  frame.Y.size());
+        f.write((char*)frame.Cb.data(), frame.Cb.size());
+        f.write((char*)frame.Cr.data(), frame.Cr.size());
+    }
+}
+
+void printStats(const RawVideo& vid) {
+    size_t rgb = vid.width * vid.height * 3 * vid.frames.size();
+    printf("Video   : %ux%u @ %u fps\\n", vid.width, vid.height, vid.fps);
+    printf("Frames  : %zu   Duration: %.2fs\\n", vid.frames.size(), vid.duration());
+    printf("YUV raw : %.1f MB\\n", vid.totalBytes() / 1e6);
+    printf("RGB raw : %.1f MB  (YUV saves %.0f%%)\\n",
+           rgb/1e6, (1.0 - (double)vid.totalBytes()/rgb)*100);
+}
+
+int main() {
+    RawVideo vid(320, 240, 30);
+
+    for (uint32_t f = 0; f < 90; ++f) {  // 3 seconds @ 30fps
+        YUVFrame frame(320, 240);
+        float t = (float)f / 90;
+        RGB color = { (uint8_t)(255*t), (uint8_t)(255*(1-t)), 128 };
+        uint8_t Y, Cb, Cr;
+        rgbToYCbCr(color, Y, Cb, Cr);
+        fill(frame.Y.begin(),  frame.Y.end(),  Y);
+        fill(frame.Cb.begin(), frame.Cb.end(), Cb);
+        fill(frame.Cr.begin(), frame.Cr.end(), Cr);
+        vid.frames.push_back(move(frame));
+    }
+
+    printStats(vid);
+    writeYUV(vid, "output.yuv");
+    printf("\\nWrote output.yuv\\n");
+    printf("Play: ffplay -f rawvideo -pixel_format yuv420p -video_size 320x240 output.yuv\\n");
+}`))
+
+        + callout('🧠',
+          '<strong>Key insight:</strong> H.264 compression works by storing only the <em>differences</em> '
+          + 'between frames (P-frames, B-frames), not full images each time. '
+          + 'An I-frame is a full JPEG-like image. This is why seeking mid-video can be slow, '
+          + 'the decoder must find the nearest I-frame and replay all deltas forward to your target frame.');
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════════
+    // PANEL 7 — VIDEO + AUDIO
+    // ═══════════════════════════════════════════════════════════════════════════════
+
+    function panelAV() {
+      const packets = [
+        { label: 'HEADER (moov atom)', color: '#c084fc', sub: 'width, height, fps, codec, sample rate, duration, track offsets' },
+        { label: 'VIDEO PACKET #0  [I-frame, PTS=0ms]', color: '#38bdf8', sub: 'compressed keyframe, decoder can start here' },
+        { label: 'AUDIO PACKET #0  [AAC,  PTS=0ms]', color: '#22c55e', sub: '23ms of compressed audio (1024 samples @ 44100 Hz)' },
+        { label: 'VIDEO PACKET #1  [P-frame, PTS=33ms]', color: '#7dd3fc', sub: 'delta from frame 0, much smaller than I-frame' },
+        { label: 'AUDIO PACKET #1  [AAC,  PTS=23ms]', color: '#86efac', sub: 'next audio chunk' },
+        { label: 'VIDEO PACKET #2  [P-frame, PTS=66ms]', color: '#7dd3fc', sub: '' },
+        { label: 'AUDIO PACKET #2  [AAC,  PTS=46ms]', color: '#86efac', sub: '' },
+        { label: '… interleaved by timestamp …', color: '#334155', sub: '' },
+      ];
+
+      const packetsHtml = packets.map(({ label, color, sub }) =>
+        '<div class="packet" style="border:1px solid ' + color + '44;border-left:3px solid ' + color + '">'
+        + '<div class="packet-label" style="color:' + color + '">' + esc(label) + '</div>'
+        + (sub ? '<div class="packet-sub">' + esc(sub) + '</div>' : '')
+        + '</div>'
+      ).join('');
+
+      return ''
+        + section('Video + Audio = multiplexed elementary streams',
+          '<p>A playable video file (MP4, MKV) is a <strong style="color:#e2e8f0">container</strong> that '
+          + 'interleaves compressed video packets and compressed audio packets, plus timing metadata '
+          + '(DTS/PTS timestamps). The <strong style="color:#e2e8f0">muxer</strong> interleaves them; '
+          + 'the <strong style="color:#e2e8f0">demuxer</strong> splits them on playback. '
+          + 'A/V sync is maintained by comparing presentation timestamps (PTS).</p>')
+
+        + section('Container memory layout (simplified MP4)', packetsHtml)
+
+        + section('C++ Code', codeBlock(
+          `#include <iostream>
+#include <vector>
+#include <cstdint>
+#include <algorithm>
+#include <fstream>
+using namespace std;
+
+// Packet: the indivisible unit of A/V data 
+enum class StreamType : uint8_t { VIDEO = 0, AUDIO = 1 };
+
+struct Packet {
+    StreamType      type;
+    int64_t         pts;      // presentation timestamp (microseconds)
+    int64_t         dts;      // decode timestamp (differs for B-frames)
+    bool            keyframe;
+    vector<uint8_t> data;     // compressed payload (H.264 NAL / AAC frame)
+
+    size_t serializedSize() const { return 22 + data.size(); }
+    // 22 = 1 type + 8 pts + 8 dts + 1 flags + 4 size
+};
+
+// Muxer: collect and interleave A/V packets 
+struct AVMuxer {
+    vector<Packet> packets;
+
+    void addVideo(int64_t pts, bool key, vector<uint8_t> payload) {
+        packets.push_back({ StreamType::VIDEO, pts, pts, key, move(payload) });
+    }
+    void addAudio(int64_t pts, vector<uint8_t> payload) {
+        packets.push_back({ StreamType::AUDIO, pts, pts, true, move(payload) });
+    }
+    // Sort all packets by decode timestamp before writing
+    void finalize() {
+        sort(packets.begin(), packets.end(),
+             [](const Packet& a, const Packet& b){ return a.dts < b.dts; });
+    }
+    void printTable() const {
+        size_t total = 0;
+        printf("\\n%-10s %-10s %-6s %-10s\\n", "TYPE","PTS(ms)","KEY","BYTES");
+        puts("──────────────────────────────────────");
+        for (const auto& p : packets) {
+            printf("%-10s %-10lld %-6s %-10zu\\n",
+                p.type==StreamType::VIDEO?"VIDEO":"AUDIO",
+                (long long)(p.pts/1000), p.keyframe?"yes":"no",
+                p.serializedSize());
+            total += p.serializedSize();
+        }
+        printf("\\nTotal container size: %zu bytes\\n", total);
+    }
+};
+
+// Demuxer: split container back into separate streams
+struct AVDemuxer {
+    vector<Packet> video, audio;
+    void demux(const vector<Packet>& src) {
+        for (const auto& p : src)
+            (p.type==StreamType::VIDEO ? video : audio).push_back(p);
+    }
+};
+
+// A/V sync: keep video and audio aligned during playback 
+struct AVClock {
+    int64_t videoPTS = 0, audioPTS = 0;
+    void onVideo(int64_t pts) { videoPTS = pts; }
+    void onAudio(int64_t pts) { audioPTS = pts; }
+    int64_t videoLead()     const { return videoPTS - audioPTS; } // microseconds
+    bool shouldDelay()      const { return videoLead() >   50000; } // video > 50ms ahead
+    bool shouldDropFrame()  const { return videoLead() < -100000; } // video > 100ms behind
+};
+
+// Write a minimal container file 
+void writeMuxed(const AVMuxer& mux, const char* path) {
+    ofstream f(path, ios::binary);
+    const char magic[] = "AVMUX";
+    f.write(magic, 5);
+    uint32_t count = mux.packets.size();
+    f.write((char*)&count, 4);
+    for (const auto& p : mux.packets) {
+        uint8_t  type  = (uint8_t)p.type;
+        uint8_t  flags = p.keyframe ? 1 : 0;
+        uint32_t sz    = p.data.size();
+        f.write((char*)&type,  1);
+        f.write((char*)&p.pts, 8);
+        f.write((char*)&p.dts, 8);
+        f.write((char*)&flags, 1);
+        f.write((char*)&sz,    4);
+        f.write((char*)p.data.data(), sz);
+    }
+}
+
+int main() {
+    AVMuxer mux;
+    int64_t usPerFrame = 33333; // 30 fps = 33.3ms/frame
+    int64_t usPerAudio = 23220; // AAC = 1024 samples @ 44100 Hz
+
+    for (int i = 0; i < 10; ++i) {
+        bool key = (i % 3 == 0);  // keyframe every 3rd frame (GOP size=3)
+        // I-frames are ~10x larger than P-frames
+        mux.addVideo(i * usPerFrame, key, vector<uint8_t>(key ? 8000 : 800, 0xAB));
+    }
+    for (int i = 0; i < 14; ++i)
+        mux.addAudio(i * usPerAudio, vector<uint8_t>(384, 0xCD));
+
+    mux.finalize();
+    mux.printTable();
+    writeMuxed(mux, "output.avmux");
+
+    AVDemuxer demux;
+    demux.demux(mux.packets);
+    printf("\\nDemuxed -> Video: %zu pkts  Audio: %zu pkts\\n",
+           demux.video.size(), demux.audio.size());
+
+    AVClock clock;
+    clock.onAudio(100000); clock.onVideo(200000); // video 100ms ahead of audio
+    printf("Video lead: %lldms  Should delay video: %s\\n",
+           (long long)(clock.videoLead()/1000), clock.shouldDelay()?"yes":"no");
+}`))
+
+        + callout('🧠',
+          '<strong>Key insight:</strong> A video file is a filesystem inside a file, the container '
+          + '(MP4, MKV) holds a table of contents pointing to byte offsets of each compressed packet. '
+          + 'The actual video/audio payloads are just byte arrays that the codec (H.264, AAC) '
+          + 'decompresses back into raw frames and PCM samples.');
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════════
+    // TABS + ROUTING
+    // ═══════════════════════════════════════════════════════════════════════════════
+
+    const TABS = [
+      { id: 'char', label: '01. Characters', icon: 'A' },
+      { id: 'int', label: '02. Integers', icon: '±' },
+      { id: 'float', label: '03. Floats', icon: 'π' },
+      { id: 'image', label: '04. Images', icon: '▦' },
+      { id: 'sound', label: '05. Sound', icon: '♫' },
+      { id: 'video', label: '06. Video', icon: '▶' },
+      { id: 'av', label: '07. Video+Audio', icon: '⊕' },
+    ];
+
+    const PANELS = {
+      char: panelChar, int: panelInt, float: panelFloat,
+      image: panelImage, sound: panelSound, video: panelVideo, av: panelAV,
+    };
+
+    let activeTab = 'char';
+
+    function renderNav() {
+      document.getElementById('nav').innerHTML = TABS.map(t =>
+        '<button data-tab="' + t.id + '" class="' + (t.id === activeTab ? 'active' : '') + '">'
+        + t.icon + ' ' + t.label + '</button>'
+      ).join('');
+
+      document.querySelectorAll('#nav button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          activeTab = btn.dataset.tab;
+          renderNav();
+          renderContent();
+        });
+      });
+    }
+
+    function renderContent() {
+      const el = document.getElementById('content');
+      el.innerHTML = PANELS[activeTab]();
+      el.scrollTop = 0;
+
+      // Attach copy-button handlers
+      el.querySelectorAll('.copy-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const src = CODE_STORE[btn.dataset.id];
+          if (!src) return;
+          navigator.clipboard.writeText(src).then(() => {
+            btn.textContent = '✓ copied';
+            btn.classList.add('ok');
+            setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('ok'); }, 1500);
+          }).catch(() => {
+            // Fallback for browsers that block clipboard without HTTPS
+            const ta = document.createElement('textarea');
+            ta.value = src; document.body.appendChild(ta);
+            ta.select(); document.execCommand('copy');
+            document.body.removeChild(ta);
+            btn.textContent = '✓ copied'; btn.classList.add('ok');
+            setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('ok'); }, 1500);
+          });
+        });
+      });
+    }
+
+    // Boot
+    renderNav();
+    renderContent();
+  </script>
+</body>
+
+</html>
