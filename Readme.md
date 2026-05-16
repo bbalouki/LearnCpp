@@ -28,7 +28,8 @@ This project is designed as a working reference. It shows how professional C++ p
 **[Chapter 8: Performance Benchmarking](#chapter-8-performance-benchmarking)**  
 **[Chapter 9: Protocol Buffers](#chapter-9-protocol-buffers)**  
 **[Chapter 10: Modern C++ Features (C++20/23)](#chapter-10-modern-c-features-c2023)**  
-**[Chapter 11: Exercises](#chapter-11-exercises)**  
+**[Chapter 11: Low-Level Memory Layout](#chapter-11-low-level-memory-layout)**  
+**[Chapter 12: Exercises](#chapter-12-exercises)**  
 **[Appendix A: Developer's Glossary](#appendix-a-developers-glossary)**
 
 ---
@@ -331,7 +332,31 @@ This repository avoids old-style C++ in favor of the C++20 and C++23 standards. 
 
 ---
 
-## Chapter 11: Exercises
+## Chapter 11: Low-Level Memory Layout
+
+High-level abstractions are powerful, but C++'s true strength lies in its ability to manipulate memory directly. To be a master C++ developer, you must understand how data actually sits in RAM.
+
+The `src/memory/` directory contains a series of standalone, educational executables that peel back the layers of abstraction.
+
+### The Memory Laboratory
+
+Unlike the rest of the project which uses a unified build, each file in `src/memory/` is a self-contained lesson:
+
+- **`integers.cpp` & `floats.cpp`**: Visualizing two's complement and IEEE-754 representation.
+- **`characters.cpp`**: Understanding ASCII, UTF-8, and how strings are just byte arrays.
+- **`images.cpp`**: How pixels are packed into rows and the memory cost of different color depths.
+- **`sounds.cpp`**: Representing waveforms as PCM samples.
+- **`videos.cpp` & `video_sound.cpp`**: The complexity of multiplexing audio/video streams into containers.
+
+### Interactive Documentation
+
+For a visual guided tour, open `docs/memory-layout.html` in any web browser.
+
+This interactive dashboard acts as a live textbook for the `src/memory/` source files. It explains the "why" behind the bit-shifting and pointer arithmetic you see in the code, providing a bridge between theoretical computer science and practical systems programming.
+
+---
+
+## Chapter 12: Exercises
 
 The best way to learn from this project is to change things and see what happens. Once your environment is set up, try the following:
 
