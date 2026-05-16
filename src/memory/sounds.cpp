@@ -132,5 +132,5 @@ int main() {
     );
 
     writeWAV(chord, "chord.wav");
-    std::println("Wrote chord.wav — open in Audacity or any audio player");
+    std::println("Wrote chord.wav, open in Audacity or any audio player");
 }

@@ -41,7 +41,7 @@ struct AVMuxer {
     void printTable() const {
         size_t totalBytes = 0;
         std::println("\n{:<10} {:<10} {:<6} {:<10}", "TYPE", "PTS(ms)", "KEY", "BYTES");
-        std::println("──────────────────────────────────────");
+        // std::println("──────────────────────────────────────");
         for (const auto& packet : packets) {
             constexpr int msDivisor = 1000;
             std::println(

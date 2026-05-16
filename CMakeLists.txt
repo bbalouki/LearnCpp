@@ -43,6 +43,8 @@ if (${PROJECT_NAME}_BUILD_TESTS)
 endif()
 
 if (${PROJECT_NAME}_BUILD_BENCHMARKS)
+    set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "" FORCE)
+    set(BENCHMARK_ENABLE_INSTALL OFF CACHE BOOL "" FORCE)
     add_subdirectory(benchmarks)
 endif()
 

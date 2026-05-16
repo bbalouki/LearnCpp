@@ -73,9 +73,9 @@ void dissectDouble(double doubleVal) {
 
 // Special IEEE 754 bit patterns
 void specials() {
-    float            inf  = 1.0f / 0.0f;
-    float            nan  = 0.0f / 0.0f;
-    float            ninf = -1.0f / 0.0f;
+    float            inf  = INFINITY;
+    float            nan  = NAN;
+    float            ninf = -INFINITY;
     uint32_t         bitsInf, bitsNaN, bitsNinf;
     constexpr size_t floatSize = 4;
     std::memcpy(&bitsInf, &inf, floatSize);

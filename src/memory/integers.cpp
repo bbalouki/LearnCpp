@@ -72,7 +72,7 @@ void overflow() {
     constexpr int8_t maxInt8   = 127;
     int8_t           signedVal = maxInt8;
     signedVal++;  // UNDEFINED BEHAVIOR for signed overflow
-    std::println("int8_t  127+1 = {} (UB — likely -128 on x86)", signedVal);
+    std::println("int8_t  127+1 = {} (UB, likely -128 on x86)", signedVal);
 }
 
 int main() {
